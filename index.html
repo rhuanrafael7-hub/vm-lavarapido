@@ -341,7 +341,7 @@
   // Busca os dados diretamente do banco no Supabase
   async function getServicos() {
     const { data, error } = await db.from('servicos').select('*');
-    if (error) {
+    if (error || !data || data.length === 0) {
       console.error('Erro ao buscar serviços no Supabase:', error);
       return [
         { id: 'moto', nome: 'Moto', preco: 30.00 },
@@ -463,13 +463,11 @@
       return;
     }
 
-    // Grava localmente para bloquear o horário escolhido
     const novoAgendamento = { nome, phone: telefone, servico: selectServico.value, data, horario };
     const agendamentos = getAgendamentos();
     agendamentos.push(novoAgendamento);
     localStorage.setItem('vm_agendamentos', JSON.stringify(agendamentos));
 
-    // Redireciona o cliente para o seu WhatsApp com a mensagem formatada
     const seuNumeroWhatsApp = "5516996540344";
     const textoMensagem = `Olá! Gostaria de agendar o seguinte serviço no *VM Lava Rápido*:%0A%0A` +
                           `👤 *Nome:* ${encodeURIComponent(nome)}%0A` +
@@ -507,10 +505,11 @@
   }
 
   async function autenticarAdmin() {
-    const user = document.getElementById('adminUser').value;
-    const pass = document.getElementById('adminPassword').value;
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPassword').value.trim();
 
-    if (user === "admim1" && pass === "admim2") {
+    // Permite "admin" / "123456" ou "admim1" / "admim2"
+    if ((user === "admin" && pass === "123456") || (user === "admim1" && pass === "admim2")) {
       document.getElementById('adminAuth').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       
@@ -519,7 +518,7 @@
       document.getElementById('priceDucha').value = servicos.find(s => s.id === 'ducha')?.preco || 50;
       document.getElementById('priceCompleto').value = servicos.find(s => s.id === 'completo')?.preco || 70;
     } else {
-      alert('Login ou senha incorretos!');
+      alert('Login ou senha incorretos! Use o usuário "admin" e senha "123456".');
     }
   }
 
@@ -528,7 +527,6 @@
     const precoDucha = parseFloat(document.getElementById('priceDucha').value);
     const precoCompleto = parseFloat(document.getElementById('priceCompleto').value);
 
-    // Atualiza os registros no Supabase
     await db.from('servicos').update({ preco: precoMoto }).eq('id', 'moto');
     await db.from('servicos').update({ preco: precoDucha }).eq('id', 'ducha');
     await db.from('servicos').update({ preco: precoCompleto }).eq('id', 'completo');
