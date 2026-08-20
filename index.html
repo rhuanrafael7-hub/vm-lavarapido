@@ -135,6 +135,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      min-height: 230px;
       transition: transform 0.2s, border-color 0.2s;
     }
     .service-card:hover {
@@ -149,10 +150,11 @@
       letter-spacing: 0.5px;
     }
     .service-desc {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-sub);
-      margin-bottom: 15px;
+      margin: 10px 0 15px 0;
       line-height: 1.4;
+      letter-spacing: 0.3px;
     }
     .service-price {
       font-size: 1.8rem;
@@ -184,7 +186,6 @@
       padding: 10px;
     }
 
-    /* Grade de Seleção de Horários (Chips) */
     .time-chips-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -258,7 +259,6 @@
     .stars { color: #ffd700; font-size: 0.95rem; }
     .review-text { color: var(--text-sub); font-size: 0.92rem; }
 
-    /* Modal Admin */
     .modal {
       display: none;
       position: fixed;
@@ -448,7 +448,6 @@
         <button class="admin-tab-btn" onclick="trocarAbaAdmin('precos')">💰 ALTERAR PREÇOS</button>
       </div>
 
-      <!-- Aba 1: Lista de Agendamentos -->
       <div id="tabAgendamentos">
         <div class="form-group">
           <label>FILTRAR AGENDAMENTOS POR DATA:</label>
@@ -457,7 +456,6 @@
         <div id="adminBookingList">Carregando agendamentos...</div>
       </div>
 
-      <!-- Aba 2: Preços dos Serviços -->
       <div id="tabPrecos" style="display: none;">
         <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Atualize os preços padrão:</p>
         <div class="form-group">
@@ -479,7 +477,6 @@
 </div>
 
 <script>
-  // Configuração Supabase
   const SUPABASE_URL = 'https://hludufophfwlckddyafz.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_DMM99rcpe5EHEYzmTsgN9g_f3nhjUrD';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -496,21 +493,21 @@
           nome: 'MOTO ESPECIAL', 
           emoji: '🏍️',
           preco: 30.00, 
-          descricao: 'LAVAGEM COMPLETA DAS DUAS RODAS, APLICAÇÃO DE SHAMPOO NEUTRO, SECAGEM E PRETINHO NOS PNEUS.' 
+          descricao: 'LAVAGEM TÉCNICA DE CHASSIS, MOTOR E CARENAGENS COM PH NEUTRO. INCLUI DESENGRAXE DA CORRENTE, SECAGEM A AR E PRETINHO.' 
         },
         { 
           id: 'ducha', 
           nome: 'DUCHA EXPRÈSS', 
           emoji: '🚿',
           preco: 50.00, 
-          descricao: 'LAVAGEM EXTERNA RÁPIDA COM DENSIDADE DE ESPUMA, ENXÁGUE DE ALTA PRESSÃO E SECAGEM TÉCNICA.' 
+          descricao: 'BANHO DE ESPUMA DENSA (SNOW FOAM) PARA SUJEIRAS LEVES DO DIA A DIA, ENXÁGUE DE ALTA PRESSÃO E SECAGEM EM MICROFIBRA.' 
         },
         { 
           id: 'completo', 
           nome: 'LAVAGEM COMPLETA', 
           emoji: '✨',
           preco: 70.00, 
-          descricao: 'LAVAGEM EXTERNA TÉCNICA, LIMPEZA INTERNA DETALHADA, ASPIRAÇÃO COMPLETA E CERA PROTETORA.' 
+          descricao: 'LAVAGEM EXTERNA TÉCNICA COM CERA PROTETORA, ASPIRAÇÃO PROFUNDA INTERNA, LIMPEZA DE PAINÉIS, VIDROS E PRETINHO.' 
         }
       ];
     }
