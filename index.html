@@ -123,7 +123,7 @@
 
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 16px;
     }
     .service-card {
@@ -132,6 +132,9 @@
       padding: 20px;
       border-radius: 12px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       transition: transform 0.2s, border-color 0.2s;
     }
     .service-card:hover {
@@ -142,6 +145,14 @@
       font-size: 1.25rem;
       margin-bottom: 8px;
       color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .service-desc {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 15px;
+      line-height: 1.4;
     }
     .service-price {
       font-size: 1.8rem;
@@ -165,6 +176,12 @@
     input:focus, select:focus, textarea:focus {
       border-color: var(--accent-blue);
       box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px;
     }
 
     /* Grade de Seleção de Horários (Chips) */
@@ -318,64 +335,64 @@
 
 <div class="container">
   <header>
-    <button class="btn-admin-trigger" onclick="abrirAdmin()">⚙️ Painel Chef</button>
+    <button class="btn-admin-trigger" onclick="abrirAdmin()">⚙️ PAINEL CHEF</button>
     <h1 class="logo-title">[Nome do Lava Rápido]</h1>
     <p class="slogan">DEIXE SEU VEÍCULO NO BRILHO!</p>
     <div class="info-bar">
       <span>📍 [Seu Endereço Completo Aqui]</span>
-      <a href="https://maps.google.com" target="_blank" class="btn-maps">🗺️ Ver no Mapa</a>
-      <span>🕒 Seg a Sáb das 08:00h</span>
-      <span>📱 Zap: (00) 00000-0000</span>
+      <a href="https://maps.google.com" target="_blank" class="btn-maps">🗺️ VER NO MAPA</a>
+      <span>🕒 SEG A SÁB DAS 08:00H</span>
+      <span>📱 ZAP: (00) 00000-0000</span>
     </div>
   </header>
 
   <section>
-    <h2>🚗 Tabela de Serviços</h2>
-    <div class="services-grid" id="servicesGrid">Carregando serviços...</div>
+    <h2>🚗 Nossos Serviços</h2>
+    <div class="services-grid" id="servicesGrid">Carregando catálogo de serviços...</div>
   </section>
 
   <section>
     <h2>📅 Agende seu Horário Online</h2>
     <form id="bookingForm" onsubmit="confirmarAgendamento(event)">
       <div class="form-group">
-        <label for="clientName">Seu Nome Completo</label>
+        <label for="clientName">SEU NOME COMPLETO</label>
         <input type="text" id="clientName" required placeholder="Digite seu nome">
       </div>
       
       <div class="form-group">
-        <label for="clientPhone">WhatsApp / Telefone</label>
+        <label for="clientPhone">WHATSAPP / TELEFONE</label>
         <input type="tel" id="clientPhone" required placeholder="(00) 00000-0000">
       </div>
 
       <div class="form-group">
-        <label for="vehicleType">Tipo / Porte do Veículo</label>
+        <label for="vehicleType">TIPO / PORTE DO VEÍCULO</label>
         <select id="vehicleType" required>
-          <option value="Carro Passeio (Hatch/Sedan)">🚘 Carro Passeio (Hatch / Sedan)</option>
-          <option value="SUV / Picape / Porte Grande">🛻 SUV / Picape / Porte Grande</option>
-          <option value="Moto">🏍️ Moto</option>
+          <option value="Carro Passeio (Hatch/Sedan)">🚘 CARRO PASSEIO (HATCH / SEDAN)</option>
+          <option value="SUV / Picape / Porte Grande">🛻 SUV / PICAPE / PORTE GRANDE</option>
+          <option value="Moto">🏍️ MOTO</option>
         </select>
       </div>
       
       <div class="form-group">
-        <label for="selectService">Selecione o Serviço</label>
+        <label for="selectService">SELECIONE O SERVIÇO</label>
         <select id="selectService" required>
           <option value="">Carregando serviços...</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="bookingDate">Data do Agendamento</label>
+        <label for="bookingDate">DATA DO AGENDAMENTO</label>
         <input type="date" id="bookingDate" required onchange="atualizarHorariosDisponiveis()">
       </div>
 
       <div class="form-group">
-        <label>Escolha o Horário Disponível:</label>
+        <label>ESCOLHA O HORÁRIO DISPONÍVEL:</label>
         <div class="time-chips-container" id="timeChipsContainer">
           <p style="color: var(--text-sub); grid-column: 1/-1;">Selecione uma data acima para ver os horários.</p>
         </div>
       </div>
 
-      <button type="submit" class="btn-primary">Confirmar e Reservar pelo WhatsApp</button>
+      <button type="submit" class="btn-primary">CONFIRMAR E RESERVAR PELO WHATSAPP</button>
     </form>
   </section>
 
@@ -383,25 +400,25 @@
     <h2>⭐ Avaliações dos Clientes</h2>
     <div class="reviews-list" id="reviewsList">Carregando avaliações...</div>
     <hr style="border-color: rgba(255,255,255,0.08); margin: 20px 0;">
-    <h3 style="color: #fff; margin-bottom: 12px; font-size: 1.1rem;">Deixe sua Avaliação</h3>
+    <h3 style="color: #fff; margin-bottom: 12px; font-size: 1.1rem; text-transform: uppercase;">Deixe sua Avaliação</h3>
     <form onsubmit="adicionarAvaliacao(event)">
       <div class="form-group">
-        <label for="reviewName">Seu Nome</label>
+        <label for="reviewName">SEU NOME</label>
         <input type="text" id="reviewName" required placeholder="Ex: Carlos M.">
       </div>
       <div class="form-group">
-        <label for="reviewStars">Sua Nota</label>
+        <label for="reviewStars">SUA NOTA</label>
         <select id="reviewStars">
-          <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excelente)</option>
-          <option value="4">⭐⭐⭐⭐ (4/5 - Muito Bom)</option>
-          <option value="3">⭐⭐⭐ (3/5 - Regular)</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5/5 - EXCELENTE)</option>
+          <option value="4">⭐⭐⭐⭐ (4/5 - MUITO BOM)</option>
+          <option value="3">⭐⭐⭐ (3/5 - REGULAR)</option>
         </select>
       </div>
       <div class="form-group">
-        <label for="reviewText">Sua Opinião</label>
-        <textarea id="reviewText" rows="3" required placeholder="O que achou do atendimento e da lavagem?"></textarea>
+        <label for="reviewText">SUA OPINIÃO</label>
+        <textarea id="reviewText" rows="3" required placeholder="O que achou do atendimento e do serviço?"></textarea>
       </div>
-      <button type="submit" class="btn-primary" style="background: #1e293b;">Enviar Avaliação</button>
+      <button type="submit" class="btn-primary" style="background: #1e293b;">ENVIAR AVALIAÇÃO</button>
     </form>
   </section>
 </div>
@@ -410,31 +427,31 @@
 <div class="modal" id="adminModal">
   <div class="modal-content">
     <span class="close-modal" onclick="fecharAdmin()">&times;</span>
-    <h2 style="margin-top:0; border:none;">🔐 Painel Chef (Admin)</h2>
+    <h2 style="margin-top:0; border:none;">🔐 PAINEL CHEF (ADMIN)</h2>
     
     <div id="adminAuth">
       <p style="margin-bottom: 12px; color: var(--text-sub);">Informe a senha do proprietário:</p>
       <div class="form-group">
-        <label for="adminUser">Login</label>
+        <label for="adminUser">LOGIN</label>
         <input type="text" id="adminUser" placeholder="Digite o usuário">
       </div>
       <div class="form-group">
-        <label for="adminPassword">Senha</label>
+        <label for="adminPassword">SENHA</label>
         <input type="password" id="adminPassword" placeholder="Digite a senha">
       </div>
-      <button class="btn-primary" onclick="autenticarAdmin()">Entrar no Painel</button>
+      <button class="btn-primary" onclick="autenticarAdmin()">ENTRAR NO PAINEL</button>
     </div>
 
     <div id="adminPanel" style="display: none;">
       <div class="admin-tab-btns">
-        <button class="admin-tab-btn active" onclick="trocarAbaAdmin('agendamentos')">📅 Agendamentos do Dia</button>
-        <button class="admin-tab-btn" onclick="trocarAbaAdmin('precos')">💰 Alterar Preços</button>
+        <button class="admin-tab-btn active" onclick="trocarAbaAdmin('agendamentos')">📅 AGENDAMENTOS DO DIA</button>
+        <button class="admin-tab-btn" onclick="trocarAbaAdmin('precos')">💰 ALTERAR PREÇOS</button>
       </div>
 
       <!-- Aba 1: Lista de Agendamentos -->
       <div id="tabAgendamentos">
         <div class="form-group">
-          <label>Filtrar Agendamentos por Data:</label>
+          <label>FILTRAR AGENDAMENTOS POR DATA:</label>
           <input type="date" id="adminFilterDate" onchange="carregarAgendamentosAdmin()">
         </div>
         <div id="adminBookingList">Carregando agendamentos...</div>
@@ -444,18 +461,18 @@
       <div id="tabPrecos" style="display: none;">
         <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Atualize os preços padrão:</p>
         <div class="form-group">
-          <label for="priceMoto">Moto (R$)</label>
+          <label for="priceMoto">MOTO (R$)</label>
           <input type="number" id="priceMoto" step="0.01">
         </div>
         <div class="form-group">
-          <label for="priceDucha">Ducha (R$)</label>
+          <label for="priceDucha">DUCHA EXPRÈSS (R$)</label>
           <input type="number" id="priceDucha" step="0.01">
         </div>
         <div class="form-group">
-          <label for="priceCompleto">Completo (R$)</label>
+          <label for="priceCompleto">COMPLETO / DETALHADO (R$)</label>
           <input type="number" id="priceCompleto" step="0.01">
         </div>
-        <button class="btn-primary" onclick="salvarNovosPrecos()">Salvar Novos Valores</button>
+        <button class="btn-primary" onclick="salvarNovosPrecos()">SALVAR NOVOS VALORES</button>
       </div>
     </div>
   </div>
@@ -474,9 +491,27 @@
     const { data, error } = await db.from('servicos').select('*');
     if (error || !data || data.length === 0) {
       return [
-        { id: 'moto', nome: 'Moto', preco: 30.00 },
-        { id: 'ducha', nome: 'Ducha', preco: 50.00 },
-        { id: 'completo', nome: 'Completo', preco: 70.00 }
+        { 
+          id: 'moto', 
+          nome: 'MOTO ESPECIAL', 
+          emoji: '🏍️',
+          preco: 30.00, 
+          descricao: 'LAVAGEM COMPLETA DAS DUAS RODAS, APLICAÇÃO DE SHAMPOO NEUTRO, SECAGEM E PRETINHO NOS PNEUS.' 
+        },
+        { 
+          id: 'ducha', 
+          nome: 'DUCHA EXPRÈSS', 
+          emoji: '🚿',
+          preco: 50.00, 
+          descricao: 'LAVAGEM EXTERNA RÁPIDA COM DENSIDADE DE ESPUMA, ENXÁGUE DE ALTA PRESSÃO E SECAGEM TÉCNICA.' 
+        },
+        { 
+          id: 'completo', 
+          nome: 'LAVAGEM COMPLETA', 
+          emoji: '✨',
+          preco: 70.00, 
+          descricao: 'LAVAGEM EXTERNA TÉCNICA, LIMPEZA INTERNA DETALHADA, ASPIRAÇÃO COMPLETA E CERA PROTETORA.' 
+        }
       ];
     }
     return data;
@@ -506,10 +541,16 @@
       servicos.forEach(s => {
         const valorNum = parseFloat(s.preco ?? s.valor ?? 0);
         const precoFormatado = !isNaN(valorNum) ? valorNum.toFixed(2).replace('.', ',') : '0,00';
+        const nomeUpper = (s.nome || 'SERVIÇO').toUpperCase();
+        const emoji = s.emoji || '🧼';
+        const desc = (s.descricao || 'Serviço profissional de alta qualidade.').toUpperCase();
 
         grid.innerHTML += `
           <div class="service-card">
-            <h3>${s.nome || 'Serviço'}</h3>
+            <div>
+              <h3>${emoji} ${nomeUpper}</h3>
+              <p class="service-desc">${desc}</p>
+            </div>
             <div class="service-price">R$ ${precoFormatado}</div>
           </div>
         `;
@@ -517,12 +558,14 @@
     }
 
     if (select && servicos.length > 0) {
-      select.innerHTML = '<option value="">Escolha um serviço</option>';
+      select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
       servicos.forEach(s => {
         const valorNum = parseFloat(s.preco ?? s.valor ?? 0);
         const precoFormatado = !isNaN(valorNum) ? valorNum.toFixed(2).replace('.', ',') : '0,00';
+        const nomeUpper = (s.nome || 'SERVIÇO').toUpperCase();
+        const emoji = s.emoji || '🧼';
 
-        select.innerHTML += `<option value="${s.id}">${s.nome} - R$ ${precoFormatado}</option>`;
+        select.innerHTML += `<option value="${s.id}">${emoji} ${nomeUpper} - R$ ${precoFormatado}</option>`;
       });
     }
   }
@@ -530,12 +573,10 @@
   async function renderizarAvaliacoes() {
     const container = document.getElementById('reviewsList');
     
-    // Tenta buscar do Supabase
     const { data, error } = await db.from('avaliacoes').select('*').order('id', { ascending: false });
     
     let avaliacoes = data;
 
-    // Fallback se a tabela não existir ou estiver vazia
     if (error || !avaliacoes || avaliacoes.length === 0) {
       avaliacoes = JSON.parse(localStorage.getItem('avaliacoes_local')) || [
         { nome: "Carlos M.", nota: 5, texto: "Serviço excelente, recomendo!" },
@@ -564,11 +605,9 @@
     const nota = parseInt(document.getElementById('reviewStars').value);
     const texto = document.getElementById('reviewText').value;
 
-    // Tenta salvar no Supabase
     const { error } = await db.from('avaliacoes').insert([{ nome, nota, texto }]);
 
     if (error) {
-      // Salva no localStorage como reserva
       const novas = JSON.parse(localStorage.getItem('avaliacoes_local')) || [];
       novas.unshift({ nome, nota, texto });
       localStorage.setItem('avaliacoes_local', JSON.stringify(novas));
@@ -657,7 +696,6 @@
       return;
     }
 
-    // Validação de horário no Supabase
     const ocupadosAtuais = await getAgendamentosSupabase(data);
     if (ocupadosAtuais.some(a => a.horario === horarioSelecionadoGlobal)) {
       Swal.fire('Ops!', 'Este horário acabou de ser reservado por outro cliente. Escolha outro.', 'error');
@@ -665,7 +703,6 @@
       return;
     }
 
-    // Salvar no Supabase
     const { error } = await db.from('agendamentos').insert([
       { nome, telefone, servico: `${servicoTexto} (${porteVeiculo})`, data, horario: horarioSelecionadoGlobal }
     ]);
@@ -676,8 +713,7 @@
       return;
     }
 
-    // Configuração do WhatsApp de Destino (Substitua pelo número do cliente ao fechar a venda)
-    const seuNumeroWhatsApp = "5500000000000"; // Exemplo: 5511999999999
+    const seuNumeroWhatsApp = "5500000000000";
     const textoMensagem = `Olá! Gostaria de agendar no *[Nome do Lava Rápido]*:%0A%0A` +
                           `👤 *Nome:* ${encodeURIComponent(nome)}%0A` +
                           `📱 *Telefone:* ${encodeURIComponent(telefone)}%0A` +
@@ -703,7 +739,6 @@
     });
   }
 
-  /* Funções do Painel Admin */
   function abrirAdmin() {
     document.getElementById('adminModal').style.display = 'flex';
   }
