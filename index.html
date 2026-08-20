@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VM Lava Rápido - Agendamento e Serviços</title>
+  <title>VM Lava Rápido - Agendamento Inteligente</title>
   
   <!-- SDK do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- SweetAlert2 para Alertas Modernos -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     :root {
@@ -17,6 +20,8 @@
       --text-color: #f8fafc;
       --text-sub: #94a3b8;
       --border-color: rgba(0, 210, 255, 0.25);
+      --danger-color: #ef4444;
+      --success-color: #10b981;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -77,13 +82,27 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      align-items: center;
+      gap: 12px;
       font-size: 0.9rem;
       color: var(--text-sub);
       background: rgba(255, 255, 255, 0.03);
       padding: 12px;
       border-radius: 8px;
     }
+
+    .btn-maps {
+      background: var(--primary-blue);
+      color: #fff;
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      transition: 0.2s;
+      display: inline-block;
+    }
+    .btn-maps:hover { background: var(--accent-blue); color: #000; }
 
     section {
       background: var(--card-bg);
@@ -130,8 +149,8 @@
       font-weight: 800;
     }
 
-    .form-group { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 6px; color: var(--text-sub); font-size: 0.9rem; font-weight: 500; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; color: var(--text-sub); font-size: 0.9rem; font-weight: 600; }
     input, select, textarea {
       width: 100%;
       padding: 12px 14px;
@@ -146,6 +165,44 @@
     input:focus, select:focus, textarea:focus {
       border-color: var(--accent-blue);
       box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+    }
+
+    /* Grade de Seleção de Horários (Chips) */
+    .time-chips-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .time-chip {
+      background: #060913;
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: #fff;
+      padding: 10px 6px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .time-chip:hover:not(:disabled) {
+      border-color: var(--accent-blue);
+      background: rgba(0, 210, 255, 0.1);
+    }
+    .time-chip.selected {
+      background: var(--accent-blue) !important;
+      color: #000 !important;
+      border-color: var(--accent-blue) !important;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+    }
+    .time-chip:disabled {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--text-sub);
+      text-decoration: line-through;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
     
     button.btn-primary {
@@ -184,31 +241,76 @@
     .stars { color: #ffd700; font-size: 0.95rem; }
     .review-text { color: var(--text-sub); font-size: 0.92rem; }
 
+    /* Modal Admin */
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(5px);
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
     .modal-content {
       background: var(--card-bg);
-      padding: 30px;
+      padding: 25px;
       border-radius: 14px;
-      max-width: 420px;
-      width: 90%;
+      max-width: 600px;
+      width: 92%;
+      max-height: 90vh;
+      overflow-y: auto;
       border: 1px solid var(--accent-blue);
       box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
     }
     .close-modal {
       float: right;
       cursor: pointer;
-      color: #ef4444;
+      color: var(--danger-color);
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
+    }
+    
+    .admin-tab-btns {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 10px;
+    }
+    .admin-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 6px;
+    }
+    .admin-tab-btn.active {
+      background: var(--accent-blue);
+      color: #000;
+    }
+
+    .booking-admin-item {
+      background: #060913;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-delete {
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -221,6 +323,7 @@
     <p class="slogan">DEIXE SEU VEÍCULO NO BRILHO!</p>
     <div class="info-bar">
       <span>📍 Av. Marcilio Cechetto, 1101 - Vila Maria</span>
+      <a href="https://maps.google.com/?q=Av.+Marcilio+Cechetto,+1101+-+Vila+Maria" target="_blank" class="btn-maps">🗺️ Ver no Mapa</a>
       <span>🕒 Seg a Sáb das 08:00h</span>
       <span>📱 Zap: (16) 99654-0344</span>
     </div>
@@ -232,15 +335,25 @@
   </section>
 
   <section>
-    <h2>📅 Agende seu Horário</h2>
+    <h2>📅 Agende seu Horário Online</h2>
     <form id="bookingForm" onsubmit="confirmarAgendamento(event)">
       <div class="form-group">
-        <label for="clientName">Nome Completo</label>
+        <label for="clientName">Seu Nome Completo</label>
         <input type="text" id="clientName" required placeholder="Digite seu nome">
       </div>
+      
       <div class="form-group">
         <label for="clientPhone">WhatsApp / Telefone</label>
         <input type="tel" id="clientPhone" required placeholder="(16) 99654-0344">
+      </div>
+
+      <div class="form-group">
+        <label for="vehicleType">Tipo / Porte do Veículo</label>
+        <select id="vehicleType" required>
+          <option value="Carro Passeio (Hatch/Sedan)">🚘 Carro Passeio (Hatch / Sedan)</option>
+          <option value="SUV / Picape / Porte Grande">🛻 SUV / Picape / Porte Grande</option>
+          <option value="Moto">🏍️ Moto</option>
+        </select>
       </div>
       
       <div class="form-group">
@@ -251,55 +364,56 @@
       </div>
 
       <div class="form-group">
-        <label for="bookingDate">Data Desejada</label>
+        <label for="bookingDate">Data do Agendamento</label>
         <input type="date" id="bookingDate" required onchange="atualizarHorariosDisponiveis()">
       </div>
 
       <div class="form-group">
-        <label for="bookingTime">Horário Disponível</label>
-        <select id="bookingTime" required>
-          <option value="">Escolha um horário</option>
-        </select>
+        <label>Escolha o Horário Disponível:</label>
+        <div class="time-chips-container" id="timeChipsContainer">
+          <p style="color: var(--text-sub); grid-column: 1/-1;">Selecione uma data acima para ver os horários.</p>
+        </div>
       </div>
 
-      <button type="submit" class="btn-primary">Confirmar e Enviar no WhatsApp</button>
+      <button type="submit" class="btn-primary">Confirmar e Reservar pelo WhatsApp</button>
     </form>
   </section>
 
   <section>
     <h2>⭐ Avaliações dos Clientes</h2>
-    <div class="reviews-list" id="reviewsList"></div>
+    <div class="reviews-list" id="reviewsList">Carregando avaliações...</div>
     <hr style="border-color: rgba(255,255,255,0.08); margin: 20px 0;">
-    <h3 style="color: #fff; margin-bottom: 12px; font-size: 1.1rem;">Deixe seu comentário</h3>
+    <h3 style="color: #fff; margin-bottom: 12px; font-size: 1.1rem;">Deixe sua Avaliação</h3>
     <form onsubmit="adicionarAvaliacao(event)">
       <div class="form-group">
         <label for="reviewName">Seu Nome</label>
-        <input type="text" id="reviewName" required placeholder="Ex: Cliente">
+        <input type="text" id="reviewName" required placeholder="Ex: Carlos M.">
       </div>
       <div class="form-group">
         <label for="reviewStars">Sua Nota</label>
         <select id="reviewStars">
-          <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-          <option value="4">⭐⭐⭐⭐ (4/5)</option>
-          <option value="3">⭐⭐⭐ (3/5)</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excelente)</option>
+          <option value="4">⭐⭐⭐⭐ (4/5 - Muito Bom)</option>
+          <option value="3">⭐⭐⭐ (3/5 - Regular)</option>
         </select>
       </div>
       <div class="form-group">
-        <label for="reviewText">Sua Avaliação</label>
-        <textarea id="reviewText" rows="3" required placeholder="O que achou do serviço?"></textarea>
+        <label for="reviewText">Sua Opinião</label>
+        <textarea id="reviewText" rows="3" required placeholder="O que achou do atendimento e da lavagem?"></textarea>
       </div>
       <button type="submit" class="btn-primary" style="background: #1e293b;">Enviar Avaliação</button>
     </form>
   </section>
 </div>
 
+<!-- Modal Painel Admin -->
 <div class="modal" id="adminModal">
   <div class="modal-content">
     <span class="close-modal" onclick="fecharAdmin()">&times;</span>
     <h2 style="margin-top:0; border:none;">🔐 Painel Chef (Admin)</h2>
     
     <div id="adminAuth">
-      <p style="margin-bottom: 12px; color: var(--text-sub);">Informe as credenciais do proprietário:</p>
+      <p style="margin-bottom: 12px; color: var(--text-sub);">Informe a senha do proprietário:</p>
       <div class="form-group">
         <label for="adminUser">Login</label>
         <input type="text" id="adminUser" placeholder="Digite o usuário">
@@ -312,36 +426,53 @@
     </div>
 
     <div id="adminPanel" style="display: none;">
-      <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Alterar Preços dos Serviços (Global):</p>
-      <div class="form-group">
-        <label for="priceMoto">Moto (R$)</label>
-        <input type="number" id="priceMoto" step="0.01">
+      <div class="admin-tab-btns">
+        <button class="admin-tab-btn active" onclick="trocarAbaAdmin('agendamentos')">📅 Agendamentos do Dia</button>
+        <button class="admin-tab-btn" onclick="trocarAbaAdmin('precos')">💰 Alterar Preços</button>
       </div>
-      <div class="form-group">
-        <label for="priceDucha">Ducha (R$)</label>
-        <input type="number" id="priceDucha" step="0.01">
+
+      <!-- Aba 1: Lista de Agendamentos -->
+      <div id="tabAgendamentos">
+        <div class="form-group">
+          <label>Filtrar Agendamentos por Data:</label>
+          <input type="date" id="adminFilterDate" onchange="carregarAgendamentosAdmin()">
+        </div>
+        <div id="adminBookingList">Carregando agendamentos...</div>
       </div>
-      <div class="form-group">
-        <label for="priceCompleto">Completo (R$)</label>
-        <input type="number" id="priceCompleto" step="0.01">
+
+      <!-- Aba 2: Preços dos Serviços -->
+      <div id="tabPrecos" style="display: none;">
+        <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Atualize os preços padrão:</p>
+        <div class="form-group">
+          <label for="priceMoto">Moto (R$)</label>
+          <input type="number" id="priceMoto" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="priceDucha">Ducha (R$)</label>
+          <input type="number" id="priceDucha" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="priceCompleto">Completo (R$)</label>
+          <input type="number" id="priceCompleto" step="0.01">
+        </div>
+        <button class="btn-primary" onclick="salvarNovosPrecos()">Salvar Novos Valores</button>
       </div>
-      <button class="btn-primary" onclick="salvarNovosPrecos()">Salvar Novos Valores</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Conexão com o Supabase
+  // Configuração Supabase
   const SUPABASE_URL = 'https://hludufophfwlckddyafz.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_DMM99rcpe5EHEYzmTsgN9g_f3nhjUrD';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const horariosFuncionamento = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+  let horarioSelecionadoGlobal = null;
 
   async function getServicos() {
     const { data, error } = await db.from('servicos').select('*');
     if (error || !data || data.length === 0) {
-      console.error('Erro ao buscar serviços no Supabase:', error);
       return [
         { id: 'moto', nome: 'Moto', preco: 30.00 },
         { id: 'ducha', nome: 'Ducha', preco: 50.00 },
@@ -351,26 +482,18 @@
     return data;
   }
 
-  // Busca os agendamentos salvos no Supabase para uma determinada data
   async function getAgendamentosSupabase(dataSelecionada) {
     if (!dataSelecionada) return [];
     const { data, error } = await db
       .from('agendamentos')
-      .select('horario')
+      .select('*')
       .eq('data', dataSelecionada);
 
     if (error) {
-      console.error('Erro ao buscar agendamentos do Supabase:', error);
+      console.error('Erro ao buscar agendamentos:', error);
       return [];
     }
     return data || [];
-  }
-
-  function getAvaliacoes() {
-    return JSON.parse(localStorage.getItem('vm_avaliacoes')) || [
-      { nome: "Carlos M.", nota: 5, texto: "Serviço excelente, deixaram a moto zerada!" },
-      { nome: "João Pedro", nota: 5, texto: "A lavagem completa vale muito a pena." }
-    ];
   }
 
   async function renderizarServicos() {
@@ -404,9 +527,22 @@
     }
   }
 
-  function renderizarAvaliacoes() {
-    const avaliacoes = getAvaliacoes();
+  async function renderizarAvaliacoes() {
     const container = document.getElementById('reviewsList');
+    
+    // Tenta buscar do Supabase
+    const { data, error } = await db.from('avaliacoes').select('*').order('id', { ascending: false });
+    
+    let avaliacoes = data;
+
+    // Fallback se a tabela não existir ou estiver vazia
+    if (error || !avaliacoes || avaliacoes.length === 0) {
+      avaliacoes = JSON.parse(localStorage.getItem('vm_avaliacoes')) || [
+        { nome: "Carlos M.", nota: 5, texto: "Serviço excelente, deixaram a moto zerada!" },
+        { nome: "João Pedro", nota: 5, texto: "A lavagem completa vale muito a pena." }
+      ];
+    }
+
     if (!container) return;
     container.innerHTML = '';
     avaliacoes.forEach(a => {
@@ -422,6 +558,35 @@
     });
   }
 
+  async function adicionarAvaliacao(e) {
+    e.preventDefault();
+    const nome = document.getElementById('reviewName').value;
+    const nota = parseInt(document.getElementById('reviewStars').value);
+    const texto = document.getElementById('reviewText').value;
+
+    // Tenta salvar no Supabase
+    const { error } = await db.from('avaliacoes').insert([{ nome, nota, texto }]);
+
+    if (error) {
+      // Salva no localStorage como reserva
+      const novas = JSON.parse(localStorage.getItem('vm_avaliacoes')) || [];
+      novas.unshift({ nome, nota, texto });
+      localStorage.setItem('vm_avaliacoes', JSON.stringify(novas));
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Obrigado!',
+      text: 'Sua avaliação foi enviada com sucesso.',
+      background: '#0f172a',
+      color: '#fff',
+      confirmButtonColor: '#0055ff'
+    });
+
+    renderizarAvaliacoes();
+    e.target.reset();
+  }
+
   function inicializarDataEHorarios() {
     const inputDate = document.getElementById('bookingDate');
     if (inputDate && !inputDate.value) {
@@ -434,31 +599,43 @@
 
   async function atualizarHorariosDisponiveis() {
     const dataSelecionada = document.getElementById('bookingDate').value;
-    const selectHorario = document.getElementById('bookingTime');
+    const chipsContainer = document.getElementById('timeChipsContainer');
 
-    if (!selectHorario) return;
+    if (!chipsContainer) return;
 
     if (!dataSelecionada) {
-      selectHorario.innerHTML = '<option value="">Selecione primeiro a data acima</option>';
+      chipsContainer.innerHTML = '<p style="color: var(--text-sub); grid-column: 1/-1;">Selecione primeiro uma data válida.</p>';
       return;
     }
 
-    selectHorario.innerHTML = '<option value="">Carregando horários...</option>';
+    chipsContainer.innerHTML = '<p style="color: var(--text-sub); grid-column: 1/-1;">Buscando horários vagos...</p>';
 
-    // Consulta os agendamentos diretamente no Supabase
     const agendamentos = await getAgendamentosSupabase(dataSelecionada);
     const ocupados = agendamentos.map(a => a.horario);
 
-    selectHorario.innerHTML = '<option value="">Escolha um horário</option>';
+    chipsContainer.innerHTML = '';
+    horarioSelecionadoGlobal = null;
 
     horariosFuncionamento.forEach(h => {
       const estaOcupado = ocupados.includes(h);
-      selectHorario.innerHTML += `
-        <option value="${h}" ${estaOcupado ? 'disabled' : ''}>
-          ${h} ${estaOcupado ? '❌ (INDISPONÍVEL)' : '✅ (DISPONÍVEL)'}
-        </option>
-      `;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'time-chip';
+      button.innerText = estaOcupado ? `${h} ❌` : h;
+      button.disabled = estaOcupado;
+
+      if (!estaOcupado) {
+        button.onclick = () => seleccionarChip(button, h);
+      }
+
+      chipsContainer.appendChild(button);
     });
+  }
+
+  function seleccionarChip(element, horario) {
+    document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+    element.classList.add('selected');
+    horarioSelecionadoGlobal = horario;
   }
 
   async function confirmarAgendamento(e) {
@@ -466,69 +643,67 @@
     
     const nome = document.getElementById('clientName').value;
     const telefone = document.getElementById('clientPhone').value;
+    const porteVeiculo = document.getElementById('vehicleType').value;
     const selectServico = document.getElementById('selectService');
     const servicoTexto = selectServico.options[selectServico.selectedIndex].text;
     const data = document.getElementById('bookingDate').value;
-    const horario = document.getElementById('bookingTime').value;
 
     if (!selectServico.value) {
-      alert('Por favor, selecione o serviço desejado.');
+      Swal.fire('Atenção', 'Selecione o serviço desejado.', 'warning');
       return;
     }
-    if (!horario) {
-      alert('Por favor, selecione um horário disponível.');
+    if (!horarioSelecionadoGlobal) {
+      Swal.fire('Horário Pendente', 'Clique em um dos botões de horário disponível acima.', 'info');
       return;
     }
 
-    // Verifica novamente se ninguém agendou esse horário enquanto o usuário preenchia o formulário
+    // Validação de horário no Supabase
     const ocupadosAtuais = await getAgendamentosSupabase(data);
-    if (ocupadosAtuais.some(a => a.horario === horario)) {
-      alert('Ops! Este horário acabou de ser reservado por outro cliente. Escolha outro horário.');
+    if (ocupadosAtuais.some(a => a.horario === horarioSelecionadoGlobal)) {
+      Swal.fire('Ops!', 'Este horário acabou de ser reservado por outro cliente. Escolha outro.', 'error');
       atualizarHorariosDisponiveis();
       return;
     }
 
-    // Salva o novo agendamento no Supabase
+    // Salvar no Supabase
     const { error } = await db.from('agendamentos').insert([
-      { nome, telefone, servico: servicoTexto, data, horario }
+      { nome, telefone, servico: `${servicoTexto} (${porteVeiculo})`, data, horario: horarioSelecionadoGlobal }
     ]);
 
     if (error) {
-      console.error('Erro ao salvar agendamento no Supabase:', error);
-      alert('Ocorreu um erro ao salvar o agendamento. Tente novamente.');
+      console.error('Erro ao salvar:', error);
+      Swal.fire('Erro', 'Ocorreu um erro ao registrar o agendamento. Tente novamente.', 'error');
       return;
     }
 
-    // Envia a mensagem para o WhatsApp
+    // WhatsApp
     const seuNumeroWhatsApp = "5516996540344";
-    const textoMensagem = `Olá! Gostaria de agendar o seguinte serviço no *VM Lava Rápido*:%0A%0A` +
+    const textoMensagem = `Olá! Gostaria de agendar no *VM Lava Rápido*:%0A%0A` +
                           `👤 *Nome:* ${encodeURIComponent(nome)}%0A` +
                           `📱 *Telefone:* ${encodeURIComponent(telefone)}%0A` +
-                          `🚗 *Serviço:* ${encodeURIComponent(servicoTexto)}%0A` +
+                          `🚘 *Veículo:* ${encodeURIComponent(porteVeiculo)}%0A` +
+                          `🧼 *Serviço:* ${encodeURIComponent(servicoTexto)}%0A` +
                           `📅 *Data:* ${encodeURIComponent(data)}%0A` +
-                          `⏰ *Horário:* ${encodeURIComponent(horario)}%0A%0A` +
+                          `⏰ *Horário:* ${encodeURIComponent(horarioSelecionadoGlobal)}%0A%0A` +
                           `Aguardando confirmação!`;
 
     const linkWhatsApp = `https://wa.me/${seuNumeroWhatsApp}?text=${textoMensagem}`;
-    window.open(linkWhatsApp, '_blank');
-
-    document.getElementById('bookingForm').reset();
-    inicializarDataEHorarios();
-  }
-
-  function adicionarAvaliacao(e) {
-    e.preventDefault();
-    const novas = getAvaliacoes();
-    novas.unshift({
-      nome: document.getElementById('reviewName').value,
-      nota: parseInt(document.getElementById('reviewStars').value),
-      texto: document.getElementById('reviewText').value
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Agendamento Gravado!',
+      text: 'Você será redirecionado para o WhatsApp para enviar a confirmação.',
+      background: '#0f172a',
+      color: '#fff',
+      confirmButtonColor: '#0055ff'
+    }).then(() => {
+      window.open(linkWhatsApp, '_blank');
+      document.getElementById('bookingForm').reset();
+      inicializarDataEHorarios();
     });
-    localStorage.setItem('vm_avaliacoes', JSON.stringify(novas));
-    renderizarAvaliacoes();
-    e.target.reset();
   }
 
+  /* Funções do Painel Admin */
   function abrirAdmin() {
     document.getElementById('adminModal').style.display = 'flex';
   }
@@ -544,12 +719,78 @@
       document.getElementById('adminAuth').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('adminFilterDate').value = hoje;
+      carregarAgendamentosAdmin();
+
       const servicos = await getServicos();
       document.getElementById('priceMoto').value = servicos.find(s => s.id === 'moto')?.preco || 30;
       document.getElementById('priceDucha').value = servicos.find(s => s.id === 'ducha')?.preco || 50;
       document.getElementById('priceCompleto').value = servicos.find(s => s.id === 'completo')?.preco || 70;
     } else {
-      alert('Login ou senha incorretos! Tente novamente.');
+      Swal.fire('Acesso Negado', 'Login ou senha incorretos!', 'error');
+    }
+  }
+
+  function trocarAbaAdmin(aba) {
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+    if (aba === 'agendamentos') {
+      document.querySelectorAll('.admin-tab-btn')[0].classList.add('active');
+      document.getElementById('tabAgendamentos').style.display = 'block';
+      document.getElementById('tabPrecos').style.display = 'none';
+    } else {
+      document.querySelectorAll('.admin-tab-btn')[1].classList.add('active');
+      document.getElementById('tabAgendamentos').style.display = 'none';
+      document.getElementById('tabPrecos').style.display = 'block';
+    }
+  }
+
+  async function carregarAgendamentosAdmin() {
+    const dataFiltro = document.getElementById('adminFilterDate').value;
+    const container = document.getElementById('adminBookingList');
+    container.innerHTML = 'Buscando agendamentos...';
+
+    const agendamentos = await getAgendamentosSupabase(dataFiltro);
+
+    if (agendamentos.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-sub);">Nenhum agendamento encontrado para esta data.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    agendamentos.forEach(a => {
+      container.innerHTML += `
+        <div class="booking-admin-item">
+          <div>
+            <strong style="color: var(--accent-blue);">${a.horario}</strong> - ${a.nome}<br>
+            <small style="color: var(--text-sub);">${a.servico} | Tel: ${a.telefone}</small>
+          </div>
+          <button class="btn-delete" onclick="cancelarAgendamento(${a.id})">Desmarcar</button>
+        </div>
+      `;
+    });
+  }
+
+  async function cancelarAgendamento(id) {
+    const res = await Swal.fire({
+      title: 'Cancelar Agendamento?',
+      text: "Isso liberará o horário novamente no site.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#334155',
+      confirmButtonText: 'Sim, cancelar!'
+    });
+
+    if (res.isConfirmed) {
+      const { error } = await db.from('agendamentos').delete().eq('id', id);
+      if (!error) {
+        Swal.fire('Cancelado!', 'O agendamento foi desmarcado.', 'success');
+        carregarAgendamentosAdmin();
+        atualizarHorariosDisponiveis();
+      } else {
+        Swal.fire('Erro', 'Não foi possível cancelar o agendamento.', 'error');
+      }
     }
   }
 
@@ -562,7 +803,7 @@
     await db.from('servicos').update({ preco: precoDucha }).eq('id', 'ducha');
     await db.from('servicos').update({ preco: precoCompleto }).eq('id', 'completo');
 
-    alert('Preços atualizados com sucesso no banco de dados!');
+    Swal.fire('Sucesso', 'Preços atualizados com sucesso!', 'success');
     renderizarServicos();
     fecharAdmin();
   }
