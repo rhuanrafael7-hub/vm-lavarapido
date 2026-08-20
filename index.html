@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lava Rápido - Agendamento Inteligente</title>
   
-  <!-- SDK do Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   
-  <!-- SweetAlert2 para Alertas Modernos -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -123,7 +121,7 @@
 
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 16px;
     }
     .service-card {
@@ -135,7 +133,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 230px;
+      min-height: 250px;
       transition: transform 0.2s, border-color 0.2s;
     }
     .service-card:hover {
@@ -150,10 +148,10 @@
       letter-spacing: 0.5px;
     }
     .service-desc {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-sub);
       margin: 10px 0 15px 0;
-      line-height: 1.4;
+      line-height: 1.45;
       letter-spacing: 0.3px;
     }
     .service-price {
@@ -423,10 +421,9 @@
   </section>
 </div>
 
-<!-- Modal Painel Admin -->
 <div class="modal" id="adminModal">
   <div class="modal-content">
-    <span class="close-modal" onclick="fecharAdmin()">&times;</span>
+    <span class="close-modal" onclick="fecharAdmin()">×</span>
     <h2 style="margin-top:0; border:none;">🔐 PAINEL CHEF (ADMIN)</h2>
     
     <div id="adminAuth">
@@ -493,21 +490,21 @@
           nome: 'MOTO ESPECIAL', 
           emoji: '🏍️',
           preco: 30.00, 
-          descricao: 'LAVAGEM TÉCNICA DE CHASSIS, MOTOR E CARENAGENS COM PH NEUTRO. INCLUI DESENGRAXE DA CORRENTE, SECAGEM A AR E PRETINHO.' 
+          descricao: 'CUIDADO TÉCNICO E DETALHADO PARA A SUA MOTO. INCLUI LAVAGEM DE CHASSIS, MOTOR E CARENAGENS COM PH NEUTRO, DESENGRAXE DA CORRENTE, SECAGEM A AR COMPRIMIDO E PRETINHO.' 
         },
         { 
           id: 'ducha', 
           nome: 'DUCHA EXPRÈSS', 
           emoji: '🚿',
           preco: 50.00, 
-          descricao: 'BANHO DE ESPUMA DENSA (SNOW FOAM) PARA SUJEIRAS LEVES DO DIA A DIA, ENXÁGUE DE ALTA PRESSÃO E SECAGEM EM MICROFIBRA.' 
+          descricao: 'ACELERE SEU DIA COM O CARRO LIMPO E BRILHANDO. BANHO DE ESPUMA DENSA (SNOW FOAM) PARA SUJEIRAS LEVES, ENXÁGUE DE ALTA PRESSÃO E SECAGEM EM MICROFIBRA.' 
         },
         { 
           id: 'completo', 
           nome: 'LAVAGEM COMPLETA', 
           emoji: '✨',
           preco: 70.00, 
-          descricao: 'LAVAGEM EXTERNA TÉCNICA COM CERA PROTETORA, ASPIRAÇÃO PROFUNDA INTERNA, LIMPEZA DE PAINÉIS, VIDROS E PRETINHO.' 
+          descricao: 'RENOVAÇÃO TOTAL PARA O SEU VEÍCULO (INTERNA + EXTERNA). LAVAGEM TÉCNICA COM CERA PROTETORA, ASPIRAÇÃO PROFUNDA, HIGIENIZAÇÃO DE PAINÉIS, VIDROS E PRETINHO.' 
         }
       ];
     }
