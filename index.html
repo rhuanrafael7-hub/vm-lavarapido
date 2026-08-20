@@ -351,8 +351,19 @@
     return data;
   }
 
-  function getAgendamentos() {
-    return JSON.parse(localStorage.getItem('vm_agendamentos')) || [];
+  // Busca os agendamentos salvos no Supabase para uma determinada data
+  async function getAgendamentosSupabase(dataSelecionada) {
+    if (!dataSelecionada) return [];
+    const { data, error } = await db
+      .from('agendamentos')
+      .select('horario')
+      .eq('data', dataSelecionada);
+
+    if (error) {
+      console.error('Erro ao buscar agendamentos do Supabase:', error);
+      return [];
+    }
+    return data || [];
   }
 
   function getAvaliacoes() {
@@ -421,7 +432,7 @@
     atualizarHorariosDisponiveis();
   }
 
-  function atualizarHorariosDisponiveis() {
+  async function atualizarHorariosDisponiveis() {
     const dataSelecionada = document.getElementById('bookingDate').value;
     const selectHorario = document.getElementById('bookingTime');
 
@@ -432,10 +443,11 @@
       return;
     }
 
-    const agendamentos = getAgendamentos();
-    const ocupados = agendamentos
-      .filter(a => a.data === dataSelecionada)
-      .map(a => a.horario);
+    selectHorario.innerHTML = '<option value="">Carregando horários...</option>';
+
+    // Consulta os agendamentos diretamente no Supabase
+    const agendamentos = await getAgendamentosSupabase(dataSelecionada);
+    const ocupados = agendamentos.map(a => a.horario);
 
     selectHorario.innerHTML = '<option value="">Escolha um horário</option>';
 
@@ -449,7 +461,7 @@
     });
   }
 
-  function confirmarAgendamento(e) {
+  async function confirmarAgendamento(e) {
     e.preventDefault();
     
     const nome = document.getElementById('clientName').value;
@@ -468,11 +480,26 @@
       return;
     }
 
-    const novoAgendamento = { nome, phone: telefone, servico: selectServico.value, data, horario };
-    const agendamentos = getAgendamentos();
-    agendamentos.push(novoAgendamento);
-    localStorage.setItem('vm_agendamentos', JSON.stringify(agendamentos));
+    // Verifica novamente se ninguém agendou esse horário enquanto o usuário preenchia o formulário
+    const ocupadosAtuais = await getAgendamentosSupabase(data);
+    if (ocupadosAtuais.some(a => a.horario === horario)) {
+      alert('Ops! Este horário acabou de ser reservado por outro cliente. Escolha outro horário.');
+      atualizarHorariosDisponiveis();
+      return;
+    }
 
+    // Salva o novo agendamento no Supabase
+    const { error } = await db.from('agendamentos').insert([
+      { nome, telefone, servico: servicoTexto, data, horario }
+    ]);
+
+    if (error) {
+      console.error('Erro ao salvar agendamento no Supabase:', error);
+      alert('Ocorreu um erro ao salvar o agendamento. Tente novamente.');
+      return;
+    }
+
+    // Envia a mensagem para o WhatsApp
     const seuNumeroWhatsApp = "5516996427102";
     const textoMensagem = `Olá! Gostaria de agendar o seguinte serviço no *VM Lava Rápido*:%0A%0A` +
                           `👤 *Nome:* ${encodeURIComponent(nome)}%0A` +
