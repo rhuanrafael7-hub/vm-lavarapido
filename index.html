@@ -338,7 +338,6 @@
 
   const horariosFuncionamento = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
-  // Busca os dados diretamente do banco no Supabase
   async function getServicos() {
     const { data, error } = await db.from('servicos').select('*');
     if (error || !data || data.length === 0) {
@@ -368,22 +367,28 @@
     const grid = document.getElementById('servicesGrid');
     const select = document.getElementById('selectService');
     
-    if (grid) {
+    if (grid && servicos.length > 0) {
       grid.innerHTML = '';
       servicos.forEach(s => {
+        const valorNum = parseFloat(s.preco ?? s.valor ?? 0);
+        const precoFormatado = !isNaN(valorNum) ? valorNum.toFixed(2).replace('.', ',') : '0,00';
+
         grid.innerHTML += `
           <div class="service-card">
-            <h3>${s.nome}</h3>
-            <div class="service-price">R$ ${parseFloat(s.preco).toFixed(2).replace('.', ',')}</div>
+            <h3>${s.nome || 'Serviço'}</h3>
+            <div class="service-price">R$ ${precoFormatado}</div>
           </div>
         `;
       });
     }
 
-    if (select) {
+    if (select && servicos.length > 0) {
       select.innerHTML = '<option value="">Escolha um serviço</option>';
       servicos.forEach(s => {
-        select.innerHTML += `<option value="${s.id}">${s.nome} - R$ ${parseFloat(s.preco).toFixed(2).replace('.', ',')}</option>`;
+        const valorNum = parseFloat(s.preco ?? s.valor ?? 0);
+        const precoFormatado = !isNaN(valorNum) ? valorNum.toFixed(2).replace('.', ',') : '0,00';
+
+        select.innerHTML += `<option value="${s.id}">${s.nome} - R$ ${precoFormatado}</option>`;
       });
     }
   }
@@ -508,8 +513,7 @@
     const user = document.getElementById('adminUser').value.trim();
     const pass = document.getElementById('adminPassword').value.trim();
 
-    // Permite "admin" / "123456" ou "admim1" / "admim2"
-    if ((user === "admin" && pass === "123456") || (user === "admim1" && pass === "admim2")) {
+    if (user === "admin" && pass === "123456") {
       document.getElementById('adminAuth').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       
@@ -518,7 +522,7 @@
       document.getElementById('priceDucha').value = servicos.find(s => s.id === 'ducha')?.preco || 50;
       document.getElementById('priceCompleto').value = servicos.find(s => s.id === 'completo')?.preco || 70;
     } else {
-      alert('Login ou senha incorretos! Use o usuário "admin" e senha "123456".');
+      alert('Login ou senha incorretos! Tente novamente.');
     }
   }
 
@@ -531,7 +535,7 @@
     await db.from('servicos').update({ preco: precoDucha }).eq('id', 'ducha');
     await db.from('servicos').update({ preco: precoCompleto }).eq('id', 'completo');
 
-    alert('Preços atualizados com sucesso no banco de dados para todos os clientes!');
+    alert('Preços atualizados com sucesso no banco de dados!');
     renderizarServicos();
     fecharAdmin();
   }
