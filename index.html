@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VM Lava Rápido - Agendamento e Serviços</title>
+  
+  <!-- SDK do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --bg-color: #060913;
@@ -224,7 +228,7 @@
 
   <section>
     <h2>🚗 Tabela de Serviços</h2>
-    <div class="services-grid" id="servicesGrid"></div>
+    <div class="services-grid" id="servicesGrid">Carregando serviços...</div>
   </section>
 
   <section>
@@ -242,10 +246,7 @@
       <div class="form-group">
         <label for="selectService">Selecione o Serviço</label>
         <select id="selectService" required>
-          <option value="">Escolha um serviço</option>
-          <option value="moto">Moto - R$ 30,00</option>
-          <option value="ducha">Ducha - R$ 50,00</option>
-          <option value="completo">Completo - R$ 70,00</option>
+          <option value="">Carregando serviços...</option>
         </select>
       </div>
 
@@ -261,7 +262,7 @@
         </select>
       </div>
 
-      <button type="submit" class="btn-primary">Confirmar Agendamento</button>
+      <button type="submit" class="btn-primary">Confirmar e Enviar no WhatsApp</button>
     </form>
   </section>
 
@@ -311,7 +312,7 @@
     </div>
 
     <div id="adminPanel" style="display: none;">
-      <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Alterar Preços dos Serviços:</p>
+      <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Alterar Preços dos Serviços (Global):</p>
       <div class="form-group">
         <label for="priceMoto">Moto (R$)</label>
         <input type="number" id="priceMoto" step="0.01">
@@ -325,31 +326,30 @@
         <input type="number" id="priceCompleto" step="0.01">
       </div>
       <button class="btn-primary" onclick="salvarNovosPrecos()">Salvar Novos Valores</button>
-      <button class="btn-primary" onclick="restaurarPadrao()" style="background: #dc2626; margin-top: 10px;">Restaurar Padrão</button>
     </div>
   </div>
 </div>
 
 <script>
-  const padraoServicos = [
-    { id: 'moto', nome: 'Moto', preco: 30.00 },
-    { id: 'ducha', nome: 'Ducha', preco: 50.00 },
-    { id: 'completo', nome: 'Completo', preco: 70.00 }
-  ];
+  // Conexão com o Supabase
+  const SUPABASE_URL = 'https://hludufophfwlckddyafz.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_DMM99rcpe5EHEYzmTsgN9g_f3nhjUrD';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const horariosFuncionamento = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
-  function getServicos() {
-    let armazenados = null;
-    try {
-      armazenados = JSON.parse(localStorage.getItem('vm_servicos'));
-    } catch(e) {}
-
-    if (!armazenados || !Array.isArray(armazenados) || armazenados.length === 0) {
-      localStorage.setItem('vm_servicos', JSON.stringify(padraoServicos));
-      return padraoServicos;
+  // Busca os dados diretamente do banco no Supabase
+  async function getServicos() {
+    const { data, error } = await db.from('servicos').select('*');
+    if (error) {
+      console.error('Erro ao buscar serviços no Supabase:', error);
+      return [
+        { id: 'moto', nome: 'Moto', preco: 30.00 },
+        { id: 'ducha', nome: 'Ducha', preco: 50.00 },
+        { id: 'completo', nome: 'Completo', preco: 70.00 }
+      ];
     }
-    return armazenados;
+    return data;
   }
 
   function getAgendamentos() {
@@ -363,8 +363,8 @@
     ];
   }
 
-  function renderizarServicos() {
-    const servicos = getServicos();
+  async function renderizarServicos() {
+    const servicos = await getServicos();
     const grid = document.getElementById('servicesGrid');
     const select = document.getElementById('selectService');
     
@@ -446,11 +446,15 @@
 
   function confirmarAgendamento(e) {
     e.preventDefault();
-    const servico = document.getElementById('selectService').value;
+    
+    const nome = document.getElementById('clientName').value;
+    const telefone = document.getElementById('clientPhone').value;
+    const selectServico = document.getElementById('selectService');
+    const servicoTexto = selectServico.options[selectServico.selectedIndex].text;
     const data = document.getElementById('bookingDate').value;
     const horario = document.getElementById('bookingTime').value;
 
-    if (!servico) {
+    if (!selectServico.value) {
       alert('Por favor, selecione o serviço desejado.');
       return;
     }
@@ -459,19 +463,25 @@
       return;
     }
 
-    const novoAgendamento = {
-      nome: document.getElementById('clientName').value,
-      phone: document.getElementById('clientPhone').value,
-      servico: servico,
-      data: data,
-      horario: horario
-    };
-
+    // Grava localmente para bloquear o horário escolhido
+    const novoAgendamento = { nome, phone: telefone, servico: selectServico.value, data, horario };
     const agendamentos = getAgendamentos();
     agendamentos.push(novoAgendamento);
     localStorage.setItem('vm_agendamentos', JSON.stringify(agendamentos));
 
-    alert(`Agendamento realizado com sucesso para ${data} às ${horario}!`);
+    // Redireciona o cliente para o seu WhatsApp com a mensagem formatada
+    const seuNumeroWhatsApp = "5516996540344";
+    const textoMensagem = `Olá! Gostaria de agendar o seguinte serviço no *VM Lava Rápido*:%0A%0A` +
+                          `👤 *Nome:* ${encodeURIComponent(nome)}%0A` +
+                          `📱 *Telefone:* ${encodeURIComponent(telefone)}%0A` +
+                          `🚗 *Serviço:* ${encodeURIComponent(servicoTexto)}%0A` +
+                          `📅 *Data:* ${encodeURIComponent(data)}%0A` +
+                          `⏰ *Horário:* ${encodeURIComponent(horario)}%0A%0A` +
+                          `Aguardando confirmação!`;
+
+    const linkWhatsApp = `https://wa.me/${seuNumeroWhatsApp}?text=${textoMensagem}`;
+    window.open(linkWhatsApp, '_blank');
+
     document.getElementById('bookingForm').reset();
     inicializarDataEHorarios();
   }
@@ -496,7 +506,7 @@
     document.getElementById('adminModal').style.display = 'none';
   }
 
-  function autenticarAdmin() {
+  async function autenticarAdmin() {
     const user = document.getElementById('adminUser').value;
     const pass = document.getElementById('adminPassword').value;
 
@@ -504,32 +514,27 @@
       document.getElementById('adminAuth').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       
-      const servicos = getServicos();
+      const servicos = await getServicos();
       document.getElementById('priceMoto').value = servicos.find(s => s.id === 'moto')?.preco || 30;
       document.getElementById('priceDucha').value = servicos.find(s => s.id === 'ducha')?.preco || 50;
       document.getElementById('priceCompleto').value = servicos.find(s => s.id === 'completo')?.preco || 70;
     } else {
-      alert('Login ou senha incorretos! Verifique e tente novamente.');
+      alert('Login ou senha incorretos!');
     }
   }
 
-  function salvarNovosPrecos() {
-    const novosServicos = [
-      { id: 'moto', nome: 'Moto', preco: parseFloat(document.getElementById('priceMoto').value) || 0 },
-      { id: 'ducha', nome: 'Ducha', preco: parseFloat(document.getElementById('priceDucha').value) || 0 },
-      { id: 'completo', nome: 'Completo', preco: parseFloat(document.getElementById('priceCompleto').value) || 0 }
-    ];
-    
-    localStorage.setItem('vm_servicos', JSON.stringify(novosServicos));
-    renderizarServicos();
-    alert('Preços atualizados com sucesso!');
-    fecharAdmin();
-  }
+  async function salvarNovosPrecos() {
+    const precoMoto = parseFloat(document.getElementById('priceMoto').value);
+    const precoDucha = parseFloat(document.getElementById('priceDucha').value);
+    const precoCompleto = parseFloat(document.getElementById('priceCompleto').value);
 
-  function restaurarPadrao() {
-    localStorage.setItem('vm_servicos', JSON.stringify(padraoServicos));
+    // Atualiza os registros no Supabase
+    await db.from('servicos').update({ preco: precoMoto }).eq('id', 'moto');
+    await db.from('servicos').update({ preco: precoDucha }).eq('id', 'ducha');
+    await db.from('servicos').update({ preco: precoCompleto }).eq('id', 'completo');
+
+    alert('Preços atualizados com sucesso no banco de dados para todos os clientes!');
     renderizarServicos();
-    alert('Serviços e preços restaurados para o padrão!');
     fecharAdmin();
   }
 
@@ -538,10 +543,6 @@
     renderizarAvaliacoes();
     inicializarDataEHorarios();
   });
-
-  renderizarServicos();
-  renderizarAvaliacoes();
-  inicializarDataEHorarios();
 </script>
 
 </body>
