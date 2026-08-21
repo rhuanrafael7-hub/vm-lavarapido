@@ -514,6 +514,7 @@
     let selectedRating = 5;
     let cacheServicos = [];
 
+    // Nomes rigorosamente fixados conforme solicitado
     const servicosPadrao = [
       { id: 1, nome: 'LIMPEZA NÍVEL I', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
       { id: 2, nome: 'LIMPEZA NÍVEL II', preco_hatch: 200.00, preco_suv: 230.00, preco_pickup: 280.00, tipo: 'limpeza' },
@@ -597,8 +598,24 @@
       const polimentoGrid = document.getElementById('polimentoGrid');
       const select = document.getElementById('selectService');
 
+      // Tenta buscar do banco, mas se vierem nomes antigos (ou vazio), substitui/mapeia rigorosamente para os padrões exigidos
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
-      let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
+      
+      let listaServicos = servicosPadrao;
+      if (!error && servicos && servicos.length > 0) {
+        // Mapeia os registros do banco para garantir os 5 nomes exatos padronizados mantendo preços do banco se existirem
+        listaServicos = servicosPadrao.map((padrao, index) => {
+          const itemBanco = servicos[index] || {};
+          return {
+            id: itemBanco.id || padrao.id,
+            nome: padrao.nome, // Força estritamente o nome padrão correto
+            preco_hatch: itemBanco.preco_hatch !== undefined ? itemBanco.preco_hatch : (itemBanco.preco || padrao.preco_hatch),
+            preco_suv: itemBanco.preco_suv !== undefined ? itemBanco.preco_suv : (itemBanco.preco || padrao.preco_suv),
+            preco_pickup: itemBanco.preco_pickup !== undefined ? itemBanco.preco_pickup : (itemBanco.preco || padrao.preco_pickup),
+            tipo: padrao.tipo
+          };
+        });
+      }
 
       cacheServicos = listaServicos;
 
@@ -607,9 +624,9 @@
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
       listaServicos.forEach(s => {
-        const pHatch = parseFloat(s.preco_hatch || s.preco || 100.00).toFixed(2).replace('.', ',');
-        const pSuv = parseFloat(s.preco_suv || s.preco || 120.00).toFixed(2).replace('.', ',');
-        const pPickup = parseFloat(s.preco_pickup || s.preco || 180.00).toFixed(2).replace('.', ',');
+        const pHatch = parseFloat(s.preco_hatch || 100.00).toFixed(2).replace('.', ',');
+        const pSuv = parseFloat(s.preco_suv || 120.00).toFixed(2).replace('.', ',');
+        const pPickup = parseFloat(s.preco_pickup || 180.00).toFixed(2).replace('.', ',');
 
         let htmlExterna = '';
         let htmlInterna = '';
@@ -712,9 +729,9 @@
       const servicoObj = cacheServicos.find(s => s.nome === servicoNome) || servicosPadrao[0];
       let precoFinal = 0;
 
-      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || servicoObj.preco || 100;
-      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || servicoObj.preco || 120;
-      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || servicoObj.preco || 180;
+      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || 100;
+      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || 120;
+      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || 180;
 
       display.innerText = `R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')}`;
     }
@@ -753,9 +770,9 @@
 
       const servicoObj = cacheServicos.find(s => s.nome === servicoNome) || servicosPadrao[0];
       let precoFinal = 0;
-      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || servicoObj.preco || 100;
-      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || servicoObj.preco || 120;
-      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || servicoObj.preco || 180;
+      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || 100;
+      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || 120;
+      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || 180;
 
       const servicoComPorte = `${servicoNome} (${porteCarro} - R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')})`;
 
@@ -861,21 +878,15 @@
 
     async function carregarDadosChef() {
       const tabelaPrecos = document.getElementById('adminPricesTable');
-      const { data: servicos } = await _supabase.from('servicos').select('*');
-      let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
-
       tabelaPrecos.innerHTML = '';
-      lista.forEach(s => {
-        const pHatch = s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 100.00);
-        const pSuv = s.preco_suv !== undefined ? s.preco_suv : (s.preco || 120.00);
-        const pPickup = s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 180.00);
-
+      
+      cacheServicos.forEach(s => {
         tabelaPrecos.innerHTML += `
           <tr>
             <td>${s.nome}</td>
-            <td><input type="number" step="0.01" id="preco_hatch_${s.id}" value="${pHatch}" style="max-width: 90px; padding: 6px;"></td>
-            <td><input type="number" step="0.01" id="preco_suv_${s.id}" value="${pSuv}" style="max-width: 90px; padding: 6px;"></td>
-            <td><input type="number" step="0.01" id="preco_pickup_${s.id}" value="${pPickup}" style="max-width: 90px; padding: 6px;"></td>
+            <td><input type="number" step="0.01" id="preco_hatch_${s.id}" value="${s.preco_hatch}" style="max-width: 90px; padding: 6px;"></td>
+            <td><input type="number" step="0.01" id="preco_suv_${s.id}" value="${s.preco_suv}" style="max-width: 90px; padding: 6px;"></td>
+            <td><input type="number" step="0.01" id="preco_pickup_${s.id}" value="${s.preco_pickup}" style="max-width: 90px; padding: 6px;"></td>
             <td><button class="btn-save" onclick="atualizarPrecos(${s.id}, '${s.nome}')">Salvar</button></td>
           </tr>
         `;
@@ -917,19 +928,12 @@
 
       let { error } = await _supabase
         .from('servicos')
-        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup })
+        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: nomeServico })
         .eq('id', idNumerico);
 
       if (error) {
-        let { error: errorNome } = await _supabase
-          .from('servicos')
-          .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup })
-          .eq('nome', nomeServico);
-          
-        if (errorNome) {
-          alert('Erro ao atualizar no banco: ' + errorNome.message);
-          return;
-        }
+        alert('Erro ao atualizar no banco: ' + error.message);
+        return;
       }
 
       alert('Preços atualizados com sucesso!');
