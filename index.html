@@ -60,7 +60,6 @@
 
     .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 50px; }
     
-    /* ESTILO IDÊNTICO À IMAGEM REFERÊNCIA */
     .service-card {
       background-color: var(--bg-card); 
       border: 1px solid var(--border-color); 
@@ -177,7 +176,6 @@
     }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
 
-    /* SELETOR DE DIAS (CARDS) */
     .date-scroll-container {
       display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px;
       scrollbar-width: thin; scrollbar-color: var(--primary) var(--bg-dark);
@@ -221,7 +219,6 @@
     .review-stars { color: #ffb703; }
     .review-text { color: var(--text-muted); font-size: 0.95rem; }
 
-    /* PAINEL CHEF */
     .admin-container { background-color: var(--bg-card); border: 2px dashed var(--primary); border-radius: var(--radius-lg); padding: 30px; margin-top: 60px; }
     .admin-panel { display: none; margin-top: 20px; }
     .admin-table-wrapper { overflow-x: auto; margin-bottom: 30px; }
@@ -269,7 +266,6 @@
           <select id="selectService" required><option value="">Aguarde, carregando...</option></select>
         </div>
 
-        <!-- SELETOR DE DATA MELHORADO -->
         <div class="form-group">
           <label>Data da Lavagem</label>
           <div class="date-scroll-container" id="dateScrollContainer"></div>
@@ -327,7 +323,6 @@
     <div class="admin-container">
       <h2 class="section-title" style="border-left-color: var(--primary);">Painel Chef (Administrador)</h2>
       
-      <!-- Tela de Login do Admin -->
       <div id="adminLoginBox">
         <p style="color: var(--text-muted); margin-bottom: 15px;">Insira a senha de administrador para gerenciar preços e agendamentos.</p>
         <div style="display: flex; gap: 10px; max-width: 400px;">
@@ -336,7 +331,6 @@
         </div>
       </div>
 
-      <!-- Conteúdo do Painel Chef -->
       <div class="admin-panel" id="adminPanelContent">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <span style="color: #2ecc71; font-weight: bold;">● Sessão Chef Ativa</span>
@@ -455,6 +449,12 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
+      // Filtra estritamente para manter apenas a Limpeza Nível I conforme solicitado
+      listaServicos = listaServicos.filter(s => s.nome.toUpperCase().includes('LIMPEZA NÍVEL I'));
+      if (listaServicos.length === 0) {
+        listaServicos = servicosPadrao;
+      }
+
       grid.innerHTML = '';
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
@@ -519,7 +519,6 @@
     function selecionarServicoForm(nomeServico) {
       const select = document.getElementById('selectService');
       select.value = nomeServico;
-      // Rola suavemente até o formulário de agendamento
       document.querySelector('.booking-card').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -625,7 +624,6 @@
       });
     }
 
-    /* FUNÇÕES DO PAINEL CHEF */
     function logarChef() {
       const senha = document.getElementById('adminPasswordInput').value;
       if (senha === '123456') {
@@ -647,6 +645,8 @@
       const tabelaPrecos = document.getElementById('adminPricesTable');
       const { data: servicos } = await _supabase.from('servicos').select('*');
       let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
+
+      lista = lista.filter(s => s.nome.toUpperCase().includes('LIMPEZA NÍVEL I'));
 
       tabelaPrecos.innerHTML = '';
       lista.forEach(s => {
