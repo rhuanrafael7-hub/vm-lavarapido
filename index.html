@@ -58,23 +58,112 @@
       border-left: 4px solid var(--accent-red); padding-left: 12px;
     }
 
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 50px; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 50px; }
+    
+    /* ESTILO IDÊNTICO À IMAGEM REFERÊNCIA */
     .service-card {
-      background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease;
+      background-color: var(--bg-card); 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius-md);
+      padding: 30px 20px; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between; 
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
     }
     .service-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-orange); }
-    .service-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 12px; }
-    .service-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; white-space: pre-line; }
     
-    .price-box {
-      background-color: rgba(255, 107, 0, 0.08); border: 1px solid rgba(255, 107, 0, 0.2);
-      border-radius: var(--radius-sm); padding: 10px; margin-top: 10px;
+    .service-title-img {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--text-white);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
     }
-    .price-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
-    .price-row:last-child { margin-bottom: 0; }
-    .price-label { color: var(--text-muted); font-weight: 500; }
-    .price-value { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--primary); }
+
+    .service-category-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--accent-red);
+      letter-spacing: 2px;
+      margin: 15px 0 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .service-category-title::before, .service-category-title::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background-color: rgba(230, 57, 70, 0.4);
+    }
+
+    .service-desc-list {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .service-prices-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 25px 0 20px 0;
+    }
+
+    .price-box-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .price-box-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .price-box-value {
+      width: 100%;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-white);
+      text-align: center;
+    }
+
+    .btn-card-agendar {
+      background-color: var(--accent-red);
+      color: var(--text-white);
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: var(--shadow-red);
+      transition: background 0.2s;
+    }
+    .btn-card-agendar:hover {
+      background-color: var(--accent-red-hover);
+    }
 
     .booking-card, .reviews-section {
       background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 35px; margin-bottom: 50px;
@@ -151,7 +240,7 @@
 
   <header>
     <div class="badge-red">Atendimento Premium</div>
-    <h1>VIGATTI <span>ESTÉTICA AUTOMOTIVA</span></h1>
+    <h1>LAVA RÁPIDO <span>EXPRESS</span></h1>
     <p class="subtitle">Agende sua lavagem técnica em poucos segundos com qualidade profissional.</p>
   </header>
 
@@ -302,11 +391,9 @@
       { 
         id: 1, 
         nome: 'LIMPEZA NÍVEL I', 
-        emoji: '🚗', 
-        descricao: "EXTERNA:\n• Lavagem externa do carro\n• Limpeza das rodas (externa)\n• Limpeza de vidros externos\n• Limpeza da caixa de rodas e caixa de portas\n\nINTERNA:\n• Aspiração e limpeza dos tapetes, carpetes e bancos\n• Limpeza do painel, forros de portas e console\n• Limpeza dos vidros internos\n• Limpeza dos plásticos internos\n\nPROTEÇÃO:\n• Cera em pasta 1 mês de proteção\n• Revitalizador de plásticos interno\n• Pretinho nos pneus",
         preco_hatch: 100.00, 
         preco_suv: 120.00, 
-        preco_pickup: 80.00 
+        preco_pickup: 180.00 
       }
     ];
 
@@ -372,25 +459,68 @@
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
       listaServicos.forEach(s => {
-        const pHatch = parseFloat(s.preco_hatch || s.preco || 0).toFixed(2).replace('.', ',');
-        const pSuv = parseFloat(s.preco_suv || s.preco || 0).toFixed(2).replace('.', ',');
-        const pPickup = parseFloat(s.preco_pickup || s.preco || 0).toFixed(2).replace('.', ',');
+        const pHatch = parseFloat(s.preco_hatch || s.preco || 100.00).toFixed(2).replace('.', ',');
+        const pSuv = parseFloat(s.preco_suv || s.preco || 120.00).toFixed(2).replace('.', ',');
+        const pPickup = parseFloat(s.preco_pickup || s.preco || 180.00).toFixed(2).replace('.', ',');
 
         grid.innerHTML += `
           <div class="service-card">
             <div>
-              <h3>${s.emoji || '🚗'} ${s.nome}</h3>
-              <p class="service-desc">${s.descricao || ''}</p>
+              <div class="service-title-img">${s.nome}</div>
+
+              <div class="service-category-title">EXTERNA</div>
+              <div class="service-desc-list">
+                LAVAGEM EXTERNA DO CARRO<br>
+                LIMPEZA DAS RODAS (EXTERNA)<br>
+                LIMPEZA DE VIDROS EXTERNOS<br>
+                LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS
+              </div>
+
+              <div class="service-category-title">INTERNA</div>
+              <div class="service-desc-list">
+                ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
+                LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
+                LIMPEZA DOS VIDROS INTERNOS<br>
+                LIMPEZA DOS PLÁSTICOS INTERNOS
+              </div>
+
+              <div class="service-category-title">PROTEÇÃO</div>
+              <div class="service-desc-list">
+                CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>
+                REVITALIZADOR DE PLÁSTICOS INTERNO<br>
+                PRETINHO NOS PNEUS
+              </div>
             </div>
-            <div class="price-box">
-              <div class="price-row"><span class="price-label">Hatch / Sedan:</span><span class="price-value">R$ ${pHatch}</span></div>
-              <div class="price-row"><span class="price-label">SUV:</span><span class="price-value">R$ ${pSuv}</span></div>
-              <div class="price-row"><span class="price-label">Pick-up:</span><span class="price-value">R$ ${pPickup}</span></div>
+
+            <div>
+              <div class="service-prices-container">
+                <div class="price-box-item">
+                  <span class="price-box-label">Hatch e sedan</span>
+                  <div class="price-box-value">${pHatch}</div>
+                </div>
+                <div class="price-box-item">
+                  <span class="price-box-label">SUV</span>
+                  <div class="price-box-value">${pSuv}</div>
+                </div>
+                <div class="price-box-item">
+                  <span class="price-box-label">Pick-up</span>
+                  <div class="price-box-value">${pPickup}</div>
+                </div>
+              </div>
+
+              <button class="btn-card-agendar" onclick="selecionarServicoForm('${s.nome}')">Agendar Agora</button>
             </div>
           </div>
         `;
-        select.innerHTML += `<option value="${s.nome}">${s.emoji || '🚗'} ${s.nome} (Hatch: R$ ${pHatch} | SUV: R$ ${pSuv} | Pick-up: R$ ${pPickup})</option>`;
+        select.innerHTML += `<option value="${s.nome}">${s.nome} (Hatch: R$ ${pHatch} | SUV: R$ ${pSuv} | Pick-up: R$ ${pPickup})</option>`;
       });
+    }
+
+    function selecionarServicoForm(nomeServico) {
+      const select = document.getElementById('selectService');
+      select.value = nomeServico;
+      // Rola suavemente até o formulário de agendamento
+      document.querySelector('.booking-card').scrollIntoView({ behavior: 'smooth' });
     }
 
     function configurarHorarios() {
@@ -430,7 +560,7 @@
         const dataFormatadaBr = `${dia}/${mes}/${ano}`;
         const whatsappDestino = '5516999999999';
 
-        const mensagem = `Olá! Gostaria de confirmar meu agendamento na Vigatti Estética Automotiva:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servico}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
+        const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servico}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
         const urlWhatsApp = `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensagem)}`;
 
         document.getElementById('bookingForm').reset();
@@ -520,9 +650,9 @@
 
       tabelaPrecos.innerHTML = '';
       lista.forEach(s => {
-        const pHatch = s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 0);
-        const pSuv = s.preco_suv !== undefined ? s.preco_suv : (s.preco || 0);
-        const pPickup = s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 0);
+        const pHatch = s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 100.00);
+        const pSuv = s.preco_suv !== undefined ? s.preco_suv : (s.preco || 120.00);
+        const pPickup = s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 180.00);
 
         tabelaPrecos.innerHTML += `
           <tr>
