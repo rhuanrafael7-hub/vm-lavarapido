@@ -64,7 +64,7 @@
       gap: 25px;
       overflow-x: auto;
       padding-bottom: 15px;
-      margin-bottom: 50px;
+      margin-bottom: 35px;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-red) var(--bg-dark);
       scroll-snap-type: x mandatory;
@@ -298,14 +298,18 @@
   <header>
     <div class="badge-red">Atendimento Premium</div>
     <h1>LAVA RÁPIDO <span>EXPRESS</span></h1>
-    <p class="subtitle">Agende sua lavagem técnica em poucos segundos com qualidade profissional.</p>
+    <p class="subtitle">Agende sua lavagem técnica ou polimento em poucos segundos com qualidade profissional.</p>
   </header>
 
   <div class="container">
 
-    <!-- SERVIÇOS (COM ROLAGEM HORIZONTAL) -->
-    <h2 class="section-title">Nossos Serviços (Arraste para o lado 👉)</h2>
-    <div class="services-scroll-container" id="servicesGrid"></div>
+    <!-- SEÇÃO DE LIMPEZA -->
+    <h2 class="section-title">Limpeza (Arraste para o lado 👉)</h2>
+    <div class="services-scroll-container" id="limpezaGrid"></div>
+
+    <!-- SEÇÃO DE POLIMENTO -->
+    <h2 class="section-title" style="border-left-color: var(--primary);">Polimento (Arraste para o lado 👉)</h2>
+    <div class="services-scroll-container" id="polimentoGrid"></div>
 
     <!-- AGENDAMENTO -->
     <div class="booking-card">
@@ -339,12 +343,12 @@
 
         <!-- EXIBIÇÃO DO VALOR FINAL DINÂMICO -->
         <div class="price-display-box">
-          <div class="price-display-label">Valor Total da Limpeza</div>
+          <div class="price-display-label">Valor Total do Serviço</div>
           <div class="price-display-value" id="displayTotalValue">R$ 0,00</div>
         </div>
 
         <div class="form-group">
-          <label>Data da Lavagem</label>
+          <label>Data da Execução</label>
           <div class="date-scroll-container" id="dateScrollContainer"></div>
           <input type="hidden" id="bookingDate" required>
         </div>
@@ -460,27 +464,11 @@
     let cacheServicos = [];
 
     const servicosPadrao = [
-      { 
-        id: 1, 
-        nome: 'LIMPEZA NÍVEL I', 
-        preco_hatch: 100.00, 
-        preco_suv: 120.00, 
-        preco_pickup: 180.00
-      },
-      { 
-        id: 2, 
-        nome: 'LIMPEZA NÍVEL II', 
-        preco_hatch: 200.00, 
-        preco_suv: 250.00, 
-        preco_pickup: 300.00
-      },
-      { 
-        id: 3, 
-        nome: 'LIMPEZA NÍVEL III', 
-        preco_hatch: 300.00, 
-        preco_suv: 330.00, 
-        preco_pickup: 380.00
-      }
+      { id: 1, nome: 'LIMPEZA NÍVEL I', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
+      { id: 2, nome: 'LIMPEZA NÍVEL II', preco_hatch: 200.00, preco_suv: 250.00, preco_pickup: 300.00, tipo: 'limpeza' },
+      { id: 3, nome: 'LIMPEZA NÍVEL III', preco_hatch: 300.00, preco_suv: 330.00, preco_pickup: 380.00, tipo: 'limpeza' },
+      { id: 4, nome: 'POLIMENTO COMERCIAL', preco_hatch: 350.00, preco_suv: 420.00, preco_pickup: 500.00, tipo: 'polimento' },
+      { id: 5, nome: 'POLIMENTO TÉCNICO', preco_hatch: 600.00, preco_suv: 750.00, preco_pickup: 900.00, tipo: 'polimento' }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -538,25 +526,17 @@
     }
 
     async function carregarServicos() {
-      const grid = document.getElementById('servicesGrid');
+      const limpezaGrid = document.getElementById('limpezaGrid');
+      const polimentoGrid = document.getElementById('polimentoGrid');
       const select = document.getElementById('selectService');
 
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      listaServicos = listaServicos.filter(s => 
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL I') || 
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL II') ||
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL III')
-      );
-
-      if (listaServicos.length === 0) {
-        listaServicos = servicosPadrao;
-      }
-
       cacheServicos = listaServicos;
 
-      grid.innerHTML = '';
+      limpezaGrid.innerHTML = '';
+      polimentoGrid.innerHTML = '';
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
       listaServicos.forEach(s => {
@@ -569,89 +549,43 @@
         let htmlProtecao = '';
 
         const nomeUpper = s.nome.toUpperCase();
+        let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
         if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
-          htmlExterna = `
-            LAVAGEM EXTERNA DA PINTURA<br>
-            LIMPEZA DAS CANALETAS DE PORTA<br>
-            LIMPEZA DOS PLÁSTICOS EXTERNOS<br>
-            LIMPEZA DOS EMBLEMAS E GRADES<br>
-            LIMPEZA DAS RODAS (EXTERNA)<br>
-            LIMPEZA DAS RODAS (INTERNA)<br>
-            LIMPEZA DE VIDROS EXTERNOS<br>
-            LIMPEZA DA CAIXA DE RODAS<br>
-            LIMPEZA DA CHURRASQUEIRA<br>
-            LIMPEZA DOS PNEUS<br>
-            LIMPEZA DO ESCAPE
-          `;
-          htmlInterna = `
-            ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
-            LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
-            LIMPEZA DO VOLANTE E CHAVE DE SETA<br>
-            LIMPEZA DOS PLÁSTICOS INTERNOS<br>
-            LIMPEZA DOS VIDROS INTERNOS<br>
-            LIMPEZA DOS PEDAIS
-          `;
-          htmlProtecao = `
-            REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>
-            REVITALIZADOR DE PLÁSTICOS INTERNOS<br>
-            CERA EM PASTA 3 MESES DE PROTEÇÃO<br>
-            IMPERMEABILIZADOR DO PARABRISA<br>
-            IMPERMEABILIZADOR DOS VIDROS<br>
-            SELANTE NOS PNEUS
-          `;
+          htmlExterna = `LAVAGEM EXTERNA<br>CANALETAS DE PORTA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS E GRADES<br>RODAS (EXT/INT)<br>VIDROS E CAIXAS DE RODA`;
+          htmlInterna = `ASPIRAÇÃO COMPLETA<br>PAINEL, PORTAS E CONSOLE<br>VOLANTE E PEDAIS`;
+          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS<br>CERA 3 MESES<br>SELANTE NOS PNEUS`;
         } else if (nomeUpper.includes('LIMPEZA NÍVEL II')) {
-          htmlExterna = `
-            REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>
-            LAVAGEM EXTERNA DE PINTURA<br>
-            LIMPEZA DOS PLÁSTICOS EXTERNOS<br>
-            LIMPEZA DOS EMBLEMAS E GRADES<br>
-            LIMPEZA DAS RODAS (EXTERNA)<br>
-            LIMPEZA DAS RODAS (INTERNA)<br>
-            LIMPEZA DE VIDROS EXTERNOS<br>
-            LIMPEZA DA CAIXA DE RODAS
-          `;
-          htmlInterna = `
-            ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
-            LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
-            LIMPEZA DOS PLÁSTICOS INTERNOS<br>
-            LIMPEZA DOS VIDROS INTERNOS
-          `;
-          htmlProtecao = `
-            REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>
-            REVITALIZADOR DE PLÁSTICOS INTERNOS<br>
-            CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>
-            SELANTE NOS PNEUS
-          `;
+          htmlExterna = `LAVAGEM EXTERNA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS<br>RODAS E CAIXA DE RODAS`;
+          htmlInterna = `ASPIRAÇÃO E TAPETES<br>PAINEL E CONSOLE<br>VIDROS INTERNOS`;
+          htmlProtecao = `REVITALIZADOR<br>CERA 2 MESES<br>PRETINHO NOS PNEUS`;
+        } else if (nomeUpper.includes('LIMPEZA NÍVEL I')) {
+          htmlExterna = `LAVAGEM EXTERNA<br>RODAS E VIDROS EXTERNOSS`;
+          htmlInterna = `ASPIRAÇÃO BÁSICA<br>PAINEL E VIDROS`;
+          htmlProtecao = `CERA 1 MÊS<br>PRETINHO NOS PNEUS`;
+        } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
+          htmlExterna = `DESCONTAMINAÇÃO DE PINTURA<br>CORREÇÃO DE RISCOS PROFUNDOS<br>CORTE, REFORÇO E LUSTRO<br>PROTEÇÃO DE PLÁSTICOS`;
+          htmlInterna = `NÃO INCLUI PARTE INTERNA`;
+          htmlProtecao = `VITRIFICAÇÃO OU SELANTE PREMIUM (6 MESES)`;
+        } else if (nomeUpper.includes('POLIMENTO COMERCIAL')) {
+          htmlExterna = `DESCONTAMINAÇÃO LEVE<br>REMOÇÃO DE RISCOS SUPERFICIAIS<br>REFINO E BRILHO INTENSO`;
+          htmlInterna = `NÃO INCLUI PARTE INTERNA`;
+          htmlProtecao = `CERA PROTETORA DE ALTO BRILHO (3 MESES)`;
         } else {
-          htmlExterna = `
-            LAVAGEM EXTERNA DO CARRO<br>
-            LIMPEZA DAS RODAS (EXTERNA)<br>
-            LIMPEZA DE VIDROS EXTERNOS<br>
-            LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS
-          `;
-          htmlInterna = `
-            ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
-            LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
-            LIMPEZA DOS VIDROS INTERNOS<br>
-            LIMPEZA DOS PLÁSTICOS INTERNOS
-          `;
-          htmlProtecao = `
-            CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>
-            REVITALIZADOR DE PLÁSTICOS INTERNO<br>
-            PRETINHO NOS PNEUS
-          `;
+          htmlExterna = `SERVIÇO ESPECIALIZADO`;
+          htmlInterna = `VERIFICAR DETALHES`;
+          htmlProtecao = `INCLUSO`;
         }
 
-        grid.innerHTML += `
+        const cardHtml = `
           <div class="service-card">
             <div class="service-title-img">${s.nome}</div>
 
             <div class="service-content-scroll">
-              <div class="service-category-title">EXTERNA</div>
+              <div class="service-category-title">ETAPA 1</div>
               <div class="service-desc-list">${htmlExterna}</div>
 
-              <div class="service-category-title">INTERNA</div>
+              <div class="service-category-title">ETAPA 2</div>
               <div class="service-desc-list">${htmlInterna}</div>
 
               <div class="service-category-title">PROTEÇÃO</div>
@@ -678,6 +612,13 @@
             </div>
           </div>
         `;
+
+        if (tipoServico === 'polimento') {
+          polimentoGrid.innerHTML += cardHtml;
+        } else {
+          limpezaGrid.innerHTML += cardHtml;
+        }
+
         select.innerHTML += `<option value="${s.nome}">${s.nome}</option>`;
       });
 
@@ -739,7 +680,7 @@
         return;
       }
       if (!data) {
-        exibirAlerta(alertBox, 'Selecione uma data para a lavagem!', 'error');
+        exibirAlerta(alertBox, 'Selecione uma data!', 'error');
         return;
       }
 
@@ -768,7 +709,7 @@
         const dataFormatadaBr = `${dia}/${mes}/${ano}`;
         const whatsappDestino = '5516999999999';
 
-        const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servicoNome}\n🚗 *Porte do Carro:* ${porteCarro}\n💰 *Valor:* R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
+        const mensagem = `Olá! Gostaria de confirmar meu agendamento:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servicoNome}\n🚗 *Porte:* ${porteCarro}\n💰 *Valor:* R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
         const urlWhatsApp = `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensagem)}`;
 
         document.getElementById('bookingForm').reset();
@@ -855,12 +796,6 @@
       const tabelaPrecos = document.getElementById('adminPricesTable');
       const { data: servicos } = await _supabase.from('servicos').select('*');
       let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
-
-      lista = lista.filter(s => 
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL I') || 
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL II') ||
-        s.nome.toUpperCase().includes('LIMPEZA NÍVEL III')
-      );
 
       tabelaPrecos.innerHTML = '';
       lista.forEach(s => {
