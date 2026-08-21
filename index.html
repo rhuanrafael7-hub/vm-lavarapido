@@ -58,7 +58,7 @@
       border-left: 4px solid var(--accent-red); padding-left: 12px;
     }
 
-    /* CARROSSEL DE SERVIÇOS (ROLAGEM HORIZONTAL) */
+    /* CARROSSEL DE SERVIÇOS */
     .services-scroll-container {
       display: flex;
       gap: 25px;
@@ -140,7 +140,7 @@
     .service-desc-list {
       color: var(--text-muted);
       font-size: 0.78rem;
-      line-height: 1.4;
+      line-height: 1.5;
       margin-bottom: 5px;
       text-transform: uppercase;
     }
@@ -149,7 +149,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin: 15px 0 15px 0;
+      margin: 15px 0;
     }
 
     .price-box-item {
@@ -195,9 +195,7 @@
       box-shadow: var(--shadow-red);
       transition: background 0.2s;
     }
-    .btn-card-agendar:hover {
-      background-color: var(--accent-red-hover);
-    }
+    .btn-card-agendar:hover { background-color: var(--accent-red-hover); }
 
     .booking-card, .reviews-section {
       background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 35px; margin-bottom: 50px;
@@ -530,7 +528,6 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Renomeia Ducha Express -> LIMPEZA NÍVEL I e Lavagem Completa -> LIMPEZA NÍVEL II
       listaServicos = listaServicos.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
         if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS')) {
@@ -560,26 +557,26 @@
         const nomeUpper = s.nome.toUpperCase();
         let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
-        if (nomeUpper.includes('LIMPEZA NÍVEL I') || nomeUpper.includes('LIMPEZA NIVEL I') || nomeUpper.includes('DUCHA')) {
-          htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
-          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLÁSTICOS INTERNOS`;
-          htmlProtecao = `CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>REVITALIZADOR DE PLÁSTICOS INTERNO<br>PRETINHO NOS PNEUS`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL II') || nomeUpper.includes('LIMPEZA NIVEL II') || nomeUpper.includes('COMPLETA')) {
+        if (nomeUpper.includes('LIMPEZA NÍVEL I') || nomeUpper.includes('LIMPEZA NIVEL I')) {
+          htmlExterna = `DUCHA EXTERNA RÁPIDA DE PINTURA<br>LIMPEZA SIMPLES DAS RODAS<br>SECAGEM COM TOALHA DE MICROFIBRA<br>LIMPEZA DE VIDROS EXTERNOS`;
+          htmlInterna = `ASPIRAÇÃO ESSENCIAL DOS BANCOS E CARPETES<br>REMOÇÃO DE POEIRA DO PAINEL<br>LIMPEZA DOS VIDROS INTERNOS`;
+          htmlProtecao = `PRETINHO BÁSICO NOS PNEUS<br>DESODORIZADOR DE INTERIOR`;
+        } else if (nomeUpper.includes('LIMPEZA NÍVEL II') || nomeUpper.includes('LIMPEZA NIVEL II')) {
           htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
           htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
-          htmlExterna = `LAVAGEM EXTERNA<br>CANALETAS DE PORTA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS E GRADES<br>RODAS (EXT/INT)<br>VIDROS E CAIXAS DE RODA`;
-          htmlInterna = `ASPIRAÇÃO COMPLETA<br>PAINEL, PORTAS E CONSOLE<br>VOLANTE E PEDAIS`;
-          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS<br>CERA 3 MESES<br>SELANTE NOS PNEUS`;
+        } else if (nomeUpper.includes('LIMPEZA NÍVEL III') || nomeUpper.includes('LIMPEZA NIVEL III')) {
+          htmlExterna = `LAVAGEM TÉCNICA EXTERNA COM DESCONTAMINAÇÃO DA PINTURA<br>LIMPEZA DETALHADA DE MOTOR E CHASSIS<br>LIMPEZA PROFUNDA DE CAIXAS DE RODA E SUSPENSÃO<br>LIMPEZA E POLIMENTO TÉCNICO DE VIDROS`;
+          htmlInterna = `HIGIENIZAÇÃO COMPLETA A SECO DOS BANCOS E ESTOFADOS<br>LIMPEZA E TRATAMENTO DE COURO (SE HOUVER)<br>DESINFECÇÃO COM OZÔNIO E AR-CONDICIONADO<br>REMOÇÃO TÉCNICA DE MANCHAS DO TETO E CARPETE`;
+          htmlProtecao = `VITRIFICAÇÃO/PROTEÇÃO DE PINTURA ATÉ 6 MESES<br>CONDICIONAMENTO DE PLÁSTICOS E BORRACHAS<br>SELANTE DE ALTA DURABILIDADE NOS PNEUS`;
         } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
-          htmlExterna = `DESCONTAMINAÇÃO DE PINTURA<br>CORREÇÃO DE RISCOS PROFUNDOS<br>CORTE, REFORÇO E LUSTRO<br>PROTEÇÃO DE PLÁSTICOS`;
-          htmlInterna = `NÃO INCLUI PARTE INTERNA`;
-          htmlProtecao = `VITRIFICAÇÃO OU SELANTE PREMIUM (6 MESES)`;
+          htmlExterna = `DESCONTAMINAÇÃO COMPLETA DE PINTURA (CLAY BAR)<br>CORREÇÃO DE RISCOS FUNDOS EMARCAS DE CHUVA ÁCIDA<br>ETAPAS DE CORTE, REFINO E LUSTRO TÉCNICO<br>LIMPEZA DE RESÍDUOS DE COMPOSTOS POLIDORES`;
+          htmlInterna = `ASPIRAÇÃO INTERNA CORTESIA`;
+          htmlProtecao = `VITRIFICAÇÃO DE PINTURA DE ALTA DURABILIDADE<br>PROTEÇÃO DE PLÁSTICOS E FARÓIS`;
         } else if (nomeUpper.includes('POLIMENTO COMERCIAL')) {
-          htmlExterna = `DESCONTAMINAÇÃO LEVE<br>REMOÇÃO DE RISCOS SUPERFICIAIS<br>REFINO E BRILHO INTENSO`;
-          htmlInterna = `NÃO INCLUI PARTE INTERNA`;
-          htmlProtecao = `CERA PROTETORA DE ALTO BRILHO (3 MESES)`;
+          htmlExterna = `DESCONTAMINAÇÃO LEVE DA PINTURA<br>REMOÇÃO DE RISCOS SUPERFICIAIS E SWIRLS<br>REFINO E INTENSIFICAÇÃO DE BRILHO TÉCNICO`;
+          htmlInterna = `ASPIRAÇÃO INTERNA CORTESIA`;
+          htmlProtecao = `APLICAÇÃO DE CERA PROTETORA PREMIUM (ATÉ 3 MESES DE BRILHO E HIDROFOBIA)`;
         } else {
           htmlExterna = `SERVIÇO ESPECIALIZADO`;
           htmlInterna = `VERIFICAR DETALHES`;
