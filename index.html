@@ -10,9 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --bg-dark: #121214;
@@ -77,31 +74,11 @@
 
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; }
-    input[type="text"], input[type="tel"], input[type="date"], input[type="password"], input[type="number"], select, textarea {
+    input[type="text"], input[type="tel"], input[type="date"], select, textarea {
       width: 100%; padding: 14px 16px; background-color: var(--bg-dark); border: 1px solid var(--border-color);
       border-radius: var(--radius-sm); color: var(--text-white); font-size: 1rem;
     }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
-
-    /* SELETOR DE DIAS */
-    .date-scroll-container {
-      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px;
-      scrollbar-width: thin; scrollbar-color: var(--primary) var(--bg-dark);
-    }
-    .date-scroll-container::-webkit-scrollbar { height: 6px; }
-    .date-scroll-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-
-    .date-card {
-      background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
-      min-width: 90px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s ease;
-      display: flex; flex-direction: column; justify-content: center; gap: 4px; color: var(--text-white);
-    }
-    .date-card .day-name { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
-    .date-card .day-num { font-size: 1.2rem; font-family: 'Montserrat', sans-serif; font-weight: 800; }
-    .date-card .month-name { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
-    .date-card:hover { border-color: var(--primary); }
-    .date-card.active { background-color: var(--primary); border-color: var(--primary); box-shadow: var(--shadow-orange); }
-    .date-card.active .day-name, .date-card.active .month-name, .date-card.active .day-num { color: #ffffff; }
 
     .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px; }
     .time-btn {
@@ -154,16 +131,6 @@
     .review-stars { color: #ffb703; }
     .review-text { color: var(--text-muted); font-size: 0.95rem; }
 
-    /* PAINEL CHEF */
-    .admin-container { background-color: var(--bg-card); border: 2px dashed var(--primary); border-radius: var(--radius-lg); padding: 30px; margin-top: 60px; }
-    .admin-panel { display: none; margin-top: 20px; }
-    .admin-table-wrapper { overflow-x: auto; margin-bottom: 30px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-    th, td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
-    th { background-color: var(--bg-dark); color: var(--primary); font-family: 'Montserrat', sans-serif; text-transform: uppercase; }
-    .btn-delete { background-color: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-    .btn-save { background-color: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-
     .alert { padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; display: none; font-weight: 600; }
     .alert-success { background-color: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; color: #2ecc71; }
     .alert-error { background-color: rgba(230, 57, 70, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); }
@@ -199,13 +166,12 @@
         </div>
         <div class="form-group">
           <label for="selectService">Selecione o Serviço</label>
-          <select id="selectService" required><option value="">Aguarde, carregando...</option></select>
+          <select id="selectService" required></select>
         </div>
 
         <div class="form-group">
-          <label>Data da Lavagem</label>
-          <div class="date-scroll-container" id="dateScrollContainer"></div>
-          <input type="hidden" id="bookingDate" required>
+          <label for="bookingDate">Data da Lavagem</label>
+          <input type="date" id="bookingDate" required>
         </div>
 
         <div class="form-group">
@@ -276,67 +242,13 @@
       <div class="reviews-list" id="reviewsList"></div>
     </div>
 
-    <!-- PAINEL CHEF -->
-    <div class="admin-container">
-      <h2 class="section-title" style="border-left-color: var(--primary);">Painel Chef (Administrador)</h2>
-      
-      <div id="adminLoginBox">
-        <p style="color: var(--text-muted); margin-bottom: 15px;">Insira a senha de administrador para gerenciar preços e agendamentos.</p>
-        <div style="display: flex; gap: 10px; max-width: 400px;">
-          <input type="password" id="adminPasswordInput" placeholder="Senha de acesso">
-          <button class="btn-submit" style="margin-top:0; width: 150px;" onclick="logarChef()">Entrar</button>
-        </div>
-      </div>
-
-      <div class="admin-panel" id="adminPanelContent">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <span style="color: #2ecc71; font-weight: bold;">● Sessão Chef Ativa</span>
-          <button class="btn-delete" onclick="sairChef()">Sair do Painel</button>
-        </div>
-
-        <h3 style="font-family: 'Montserrat', sans-serif; margin-bottom: 15px; color: var(--primary);">Alterar Valores dos Serviços</h3>
-        <div class="admin-table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Serviço</th>
-                <th>Valor Atual (R$)</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody id="adminPricesTable"></tbody>
-          </table>
-        </div>
-
-        <h3 style="font-family: 'Montserrat', sans-serif; margin-bottom: 15px; color: var(--primary);">Gerenciar Agendamentos (Desagendar)</h3>
-        <div class="admin-table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Telefone</th>
-                <th>Serviço</th>
-                <th>Data / Hora</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody id="adminBookingsTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://wvqeopieinpbturxlvjx.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_DDWHG2noJxiqEOw4l89KGg_BCvu1VBS';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
     let selectedTime = '';
     let selectedRating = 5;
 
-    const servicosPadrao = [
+    const servicos = [
       { id: 1, nome: 'MOTO ESPECIAL', emoji: '🏍️', preco: 35.00, descricao: 'Cuidado técnico e detalhado para a sua moto.' },
       { id: 2, nome: 'DUCHA EXPRESS', emoji: '🚿', preco: 55.00, descricao: 'Acelere seu dia com o carro limpo e brilhando.' },
       { id: 3, nome: 'LAVAGEM COMPLETA', emoji: '✨', preco: 85.00, descricao: 'Renovação total para o seu veículo (interna + externa).' }
@@ -347,74 +259,31 @@
       carregarAvaliacoes();
       configurarHorarios();
       configurarEstrelas();
-      gerarSeletorDeDias();
+      
+      // Define a data mínima do input de data para HOJE
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('bookingDate').min = today;
     });
 
-    function gerarSeletorDeDias() {
-      const container = document.getElementById('dateScrollContainer');
-      container.innerHTML = '';
-
-      const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      const mesesDoAno = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-      for (let i = 0; i < 14; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() + i);
-
-        const ano = d.getFullYear();
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const dia = String(d.getDate()).padStart(2, '0');
-        const dataFormatada = `${ano}-${mes}-${dia}`;
-
-        let nomeDia = diasDaSemana[d.getDay()];
-        if (i === 0) nomeDia = 'Hoje';
-        if (i === 1) nomeDia = 'Amanhã';
-
-        const card = document.createElement('div');
-        card.className = `date-card ${i === 0 ? 'active' : ''}`;
-        card.setAttribute('data-date', dataFormatada);
-        card.innerHTML = `
-          <span class="day-name">${nomeDia}</span>
-          <span class="day-num">${d.getDate()}</span>
-          <span class="month-name">${mesesDoAno[d.getMonth()]}</span>
-        `;
-
-        if (i === 0) {
-          document.getElementById('bookingDate').value = dataFormatada;
-        }
-
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.date-card').forEach(c => c.classList.remove('active'));
-          card.classList.add('active');
-          document.getElementById('bookingDate').value = dataFormatada;
-        });
-
-        container.appendChild(card);
-      }
-    }
-
-    async function carregarServicos() {
+    function carregarServicos() {
       const grid = document.getElementById('servicesGrid');
       const select = document.getElementById('selectService');
-
-      const { data: servicos, error } = await _supabase.from('servicos').select('*');
-      let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
       grid.innerHTML = '';
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
-      listaServicos.forEach(s => {
-        const precoNum = parseFloat(s.preco || 0).toFixed(2).replace('.', ',');
+      servicos.forEach(s => {
+        const precoNum = s.preco.toFixed(2).replace('.', ',');
         grid.innerHTML += `
           <div class="service-card">
             <div>
-              <h3>${s.emoji || '🧼'} ${s.nome}</h3>
-              <p class="service-desc">${s.descricao || ''}</p>
+              <h3>${s.emoji} ${s.nome}</h3>
+              <p class="service-desc">${s.descricao}</p>
             </div>
             <div class="service-price">R$ ${precoNum}</div>
           </div>
         `;
-        select.innerHTML += `<option value="${s.nome}">${s.emoji || '🧼'} ${s.nome} - R$ ${precoNum}</option>`;
+        select.innerHTML += `<option value="${s.nome}">${s.emoji} ${s.nome} - R$ ${precoNum}</option>`;
       });
     }
 
@@ -428,7 +297,8 @@
       });
     }
 
-    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+    /* AGENDAMENTO E SALVAMENTO LOCAL */
+    document.getElementById('bookingForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const alertBox = document.getElementById('bookingAlert');
       const nome = document.getElementById('clientName').value;
@@ -440,33 +310,30 @@
         exibirAlerta(alertBox, 'Selecione um horário!', 'error');
         return;
       }
-      if (!data) {
-        exibirAlerta(alertBox, 'Selecione uma data para a lavagem!', 'error');
-        return;
-      }
 
-      const { error } = await _supabase.from('agendamentos').insert([{ nome, telefone, servico, data, horario: selectedTime }]);
-      if (error) {
-        exibirAlerta(alertBox, 'Erro ao agendar: ' + error.message, 'error');
-      } else {
-        exibirAlerta(alertBox, 'Agendamento realizado! Redirecionando para o WhatsApp...', 'success');
+      // Salva no LocalStorage para permitir a consulta posterior
+      const novoAgendamento = { nome, telefone, servico, data, horario: selectedTime };
+      let agendamentosSalvos = JSON.parse(localStorage.getItem('agendamentos_lava_rapido')) || [];
+      agendamentosSalvos.push(novoAgendamento);
+      localStorage.setItem('agendamentos_lava_rapido', JSON.stringify(agendamentosSalvos));
 
-        const [ano, mes, dia] = data.split('-');
-        const dataFormatadaBr = `${dia}/${mes}/${ano}`;
+      exibirAlerta(alertBox, 'Agendamento realizado! Redirecionando para o WhatsApp...', 'success');
 
-        const whatsappDestino = '5516999999999';
-        const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servico}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
-        const urlWhatsApp = `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensagem)}`;
+      // Formata data para o WhatsApp
+      const [ano, mes, dia] = data.split('-');
+      const dataFormatadaBr = `${dia}/${mes}/${ano}`;
 
-        document.getElementById('bookingForm').reset();
-        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-        selectedTime = '';
-        gerarSeletorDeDias();
+      const whatsappDestino = '5516999999999';
+      const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servico}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
+      const urlWhatsApp = `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensagem)}`;
 
-        setTimeout(() => {
-          window.open(urlWhatsApp, '_blank');
-        }, 1500);
-      }
+      document.getElementById('bookingForm').reset();
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+      selectedTime = '';
+
+      setTimeout(() => {
+        window.open(urlWhatsApp, '_blank');
+      }, 1500);
     });
 
     /* FUNÇÕES DO MODAL DE CONSULTA DO CLIENTE */
@@ -480,7 +347,7 @@
       document.getElementById('searchPhone').value = '';
     }
 
-    async function buscarAgendamentosCliente() {
+    function buscarAgendamentosCliente() {
       const phoneInput = document.getElementById('searchPhone').value.trim();
       const resultsDiv = document.getElementById('searchResults');
 
@@ -489,24 +356,22 @@
         return;
       }
 
-      resultsDiv.innerHTML = '<p style="color: var(--text-muted); font-size:0.9rem;">Buscando agendamentos...</p>';
-
-      // Limpa pontuações para comparação se necessário
       const phoneLimpo = phoneInput.replace(/\D/g, '');
+      const agendamentosSalvos = JSON.parse(localStorage.getItem('agendamentos_lava_rapido')) || [];
 
-      const { data: agendamentos, error } = await _supabase
-        .from('agendamentos')
-        .select('*')
-        .ilike('telefone', `%${phoneLimpo}%`)
-        .order('data', { ascending: true });
+      // Filtra os agendamentos que contêm o número digitado
+      const encontrados = agendamentosSalvos.filter(a => {
+        const telSalvo = a.telefone.replace(/\D/g, '');
+        return telSalvo.includes(phoneLimpo) || phoneLimpo.includes(telSalvo);
+      });
 
-      if (error || !agendamentos || agendamentos.length === 0) {
+      if (encontrados.length === 0) {
         resultsDiv.innerHTML = '<p style="color: var(--text-muted); font-size:0.9rem; margin-top:10px;">Nenhum agendamento encontrado para este número.</p>';
         return;
       }
 
       resultsDiv.innerHTML = '<p style="color:#2ecc71; font-weight:bold; margin-bottom:10px;">Agendamento(s) encontrado(s):</p>';
-      agendamentos.forEach(a => {
+      encontrados.forEach(a => {
         const [ano, mes, dia] = a.data.split('-');
         resultsDiv.innerHTML += `
           <div class="booking-result-item">
@@ -518,6 +383,7 @@
       });
     }
 
+    /* AVALIAÇÕES */
     function configurarEstrelas() {
       const stars = document.querySelectorAll('#ratingStars .star');
       stars.forEach(star => {
@@ -531,29 +397,28 @@
       });
     }
 
-    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+    document.getElementById('reviewForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const alertBox = document.getElementById('reviewAlert');
       const nome = document.getElementById('reviewName').value;
       const texto = document.getElementById('reviewText').value;
 
-      const { error } = await _supabase.from('avaliacoes').insert([{ nome, nota: selectedRating, texto }]);
-      if (error) {
-        exibirAlerta(alertBox, 'Erro ao enviar avaliação.', 'error');
-      } else {
-        exibirAlerta(alertBox, 'Avaliação enviada com sucesso!', 'success');
-        document.getElementById('reviewForm').reset();
-        carregarAvaliacoes();
-      }
+      const novaAvaliacao = { nome, nota: selectedRating, texto };
+      let avaliacoesSalvas = JSON.parse(localStorage.getItem('avaliacoes_lava_rapido')) || [];
+      avaliacoesSalvas.unshift(novaAvaliacao);
+      localStorage.setItem('avaliacoes_lava_rapido', JSON.stringify(avaliacoesSalvas));
+
+      exibirAlerta(alertBox, 'Avaliação enviada com sucesso!', 'success');
+      document.getElementById('reviewForm').reset();
+      carregarAvaliacoes();
     });
 
-    async function carregarAvaliacoes() {
+    function carregarAvaliacoes() {
       const list = document.getElementById('reviewsList');
-      const { data: avaliacoes } = await _supabase.from('avaliacoes').select('*').order('created_at', { ascending: false });
-      if (!avaliacoes || avaliacoes.length === 0) {
-        list.innerHTML = '<p style="color: var(--text-muted);">Nenhuma avaliação ainda.</p>';
-        return;
-      }
+      const avaliacoes = JSON.parse(localStorage.getItem('avaliacoes_lava_rapido')) || [
+        { nome: 'Carlos Silva', nota: 5, texto: 'Excelente atendimento! Meu carro ficou como novo.' }
+      ];
+
       list.innerHTML = '';
       avaliacoes.forEach(r => {
         const estrelas = '★'.repeat(r.nota || 5) + '☆'.repeat(5 - (r.nota || 5));
@@ -567,103 +432,6 @@
           </div>
         `;
       });
-    }
-
-    /* PAINEL CHEF */
-    function logarChef() {
-      const senha = document.getElementById('adminPasswordInput').value;
-      if (senha === '123456') {
-        document.getElementById('adminLoginBox').style.display = 'none';
-        document.getElementById('adminPanelContent').style.display = 'block';
-        carregarDadosChef();
-      } else {
-        alert('Senha incorreta!');
-      }
-    }
-
-    function sairChef() {
-      document.getElementById('adminPasswordInput').value = '';
-      document.getElementById('adminLoginBox').style.display = 'block';
-      document.getElementById('adminPanelContent').style.display = 'none';
-    }
-
-    async function carregarDadosChef() {
-      const tabelaPrecos = document.getElementById('adminPricesTable');
-      const { data: servicos } = await _supabase.from('servicos').select('*');
-      let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
-
-      tabelaPrecos.innerHTML = '';
-      lista.forEach(s => {
-        tabelaPrecos.innerHTML += `
-          <tr>
-            <td>${s.nome}</td>
-            <td><input type="number" step="0.01" id="preco_${s.id}" value="${s.preco}" style="max-width: 120px; padding: 6px;"></td>
-            <td><button class="btn-save" onclick="atualizarPreco(${s.id}, '${s.nome}')">Salvar</button></td>
-          </tr>
-        `;
-      });
-
-      const tabelaAgendamentos = document.getElementById('adminBookingsTable');
-      const { data: agendamentos } = await _supabase.from('agendamentos').select('*').order('data', { ascending: true });
-
-      if (!agendamentos || agendamentos.length === 0) {
-        tabelaAgendamentos.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Nenhum agendamento encontrado.</td></tr>';
-        return;
-      }
-
-      tabelaAgendamentos.innerHTML = '';
-      agendamentos.forEach(a => {
-        tabelaAgendamentos.innerHTML += `
-          <tr>
-            <td>${a.nome}</td>
-            <td>${a.telefone}</td>
-            <td>${a.servico}</td>
-            <td>${a.data} às ${a.horario}</td>
-            <td><button class="btn-delete" onclick="desagendar(${a.id})">Desagendar</button></td>
-          </tr>
-        `;
-      });
-    }
-
-    async function atualizarPreco(id, nomeServico) {
-      const inputElement = document.getElementById(`preco_${id}`);
-      if (!inputElement) return;
-      
-      const novoPreco = parseFloat(inputElement.value);
-      const idNumerico = parseInt(id);
-
-      let { error } = await _supabase
-        .from('servicos')
-        .update({ preco: novoPreco })
-        .eq('id', idNumerico);
-
-      if (error) {
-        let { error: errorNome } = await _supabase
-          .from('servicos')
-          .update({ preco: novoPreco })
-          .eq('nome', nomeServico);
-          
-        if (errorNome) {
-          alert('Erro ao atualizar no banco: ' + errorNome.message);
-          return;
-        }
-      }
-
-      alert('Preço atualizado com sucesso!');
-      carregarServicos();
-      carregarDadosChef();
-    }
-
-    async function desagendar(id) {
-      if (confirm('Deseja realmente cancelar e remover este agendamento?')) {
-        const { error } = await _supabase.from('agendamentos').delete().eq('id', parseInt(id));
-        if (error) {
-          alert('Erro ao desagendar: ' + error.message);
-        } else {
-          alert('Agendamento removido com sucesso!');
-          carregarDadosChef();
-        }
-      }
     }
 
     function exibirAlerta(element, msg, type) {
