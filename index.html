@@ -58,7 +58,19 @@
       border-left: 4px solid var(--accent-red); padding-left: 12px;
     }
 
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 50px; }
+    /* CARROSSEL DE SERVIÇOS (ROLAGEM HORIZONTAL) */
+    .services-scroll-container {
+      display: flex;
+      gap: 25px;
+      overflow-x: auto;
+      padding-bottom: 15px;
+      margin-bottom: 50px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-red) var(--bg-dark);
+      scroll-snap-type: x mandatory;
+    }
+    .services-scroll-container::-webkit-scrollbar { height: 8px; }
+    .services-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-red); border-radius: 4px; }
     
     .service-card {
       background-color: var(--bg-card); 
@@ -71,8 +83,12 @@
       transition: all 0.3s ease;
       text-align: center;
       position: relative;
+      min-width: 330px;
+      max-width: 360px;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
     }
-    .service-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-orange); }
+    .service-card:hover { transform: translateY(-5px); border-color: var(--accent-red); box-shadow: var(--shadow-red); }
     
     .service-title-img {
       font-family: 'Montserrat', sans-serif;
@@ -268,9 +284,9 @@
 
   <div class="container">
 
-    <!-- SERVIÇOS -->
-    <h2 class="section-title">Nossos Serviços</h2>
-    <div class="services-grid" id="servicesGrid"></div>
+    <!-- SERVIÇOS (COM ROLAGEM HORIZONTAL) -->
+    <h2 class="section-title">Nossos Serviços (Arraste para o lado 👉)</h2>
+    <div class="services-scroll-container" id="servicesGrid"></div>
 
     <!-- AGENDAMENTO -->
     <div class="booking-card">
@@ -430,7 +446,16 @@
         nome: 'LIMPEZA NÍVEL I', 
         preco_hatch: 100.00, 
         preco_suv: 120.00, 
-        preco_pickup: 180.00 
+        preco_pickup: 180.00,
+        tipo: 'nivel1'
+      },
+      { 
+        id: 2, 
+        nome: 'LIMPEZA NÍVEL II', 
+        preco_hatch: 200.00, 
+        preco_suv: 250.00, 
+        preco_pickup: 300.00,
+        tipo: 'nivel2'
       }
     ];
 
@@ -441,7 +466,6 @@
       configurarEstrelas();
       gerarSeletorDeDias();
 
-      // Eventos para calcular preço em tempo real
       document.getElementById('selectService').addEventListener('change', calcularPrecoFinalDinamico);
       document.getElementById('selectCarSize').addEventListener('change', calcularPrecoFinalDinamico);
     });
@@ -496,7 +520,12 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      listaServicos = listaServicos.filter(s => s.nome.toUpperCase().includes('LIMPEZA NÍVEL I'));
+      // Filtrar apenas Nível I e II se houver outros dados no banco
+      listaServicos = listaServicos.filter(s => 
+        s.nome.toUpperCase().includes('LIMPEZA NÍVEL I') || 
+        s.nome.toUpperCase().includes('LIMPEZA NÍVEL II')
+      );
+
       if (listaServicos.length === 0) {
         listaServicos = servicosPadrao;
       }
@@ -511,33 +540,66 @@
         const pSuv = parseFloat(s.preco_suv || s.preco || 120.00).toFixed(2).replace('.', ',');
         const pPickup = parseFloat(s.preco_pickup || s.preco || 180.00).toFixed(2).replace('.', ',');
 
+        let htmlExterna = '';
+        let htmlInterna = '';
+        let htmlProtecao = '';
+
+        if (s.nome.toUpperCase().includes('LIMPEZA NÍVEL II')) {
+          htmlExterna = `
+            REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>
+            LAVAGEM EXTERNA DE PINTURA<br>
+            LIMPEZA DOS PLÁSTICOS EXTERNOS<br>
+            LIMPEZA DOS EMBLEMAS E GRADES<br>
+            LIMPEZA DAS RODAS (EXTERNA)<br>
+            LIMPEZA DAS RODAS (INTERNA)<br>
+            LIMPEZA DE VIDROS EXTERNOS<br>
+            LIMPEZA DA CAIXA DE RODAS
+          `;
+          htmlInterna = `
+            ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
+            LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
+            LIMPEZA DOS PLÁSTICOS INTERNOS<br>
+            LIMPEZA DOS VIDROS INTERNOS
+          `;
+          htmlProtecao = `
+            REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>
+            REVITALIZADOR DE PLÁSTICOS INTERNOS<br>
+            CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>
+            SELANTE NOS PNEUS
+          `;
+        } else {
+          htmlExterna = `
+            LAVAGEM EXTERNA DO CARRO<br>
+            LIMPEZA DAS RODAS (EXTERNA)<br>
+            LIMPEZA DE VIDROS EXTERNOS<br>
+            LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS
+          `;
+          htmlInterna = `
+            ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
+            LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
+            LIMPEZA DOS VIDROS INTERNOS<br>
+            LIMPEZA DOS PLÁSTICOS INTERNOS
+          `;
+          htmlProtecao = `
+            CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>
+            REVITALIZADOR DE PLÁSTICOS INTERNO<br>
+            PRETINHO NOS PNEUS
+          `;
+        }
+
         grid.innerHTML += `
           <div class="service-card">
             <div>
               <div class="service-title-img">${s.nome}</div>
 
               <div class="service-category-title">EXTERNA</div>
-              <div class="service-desc-list">
-                LAVAGEM EXTERNA DO CARRO<br>
-                LIMPEZA DAS RODAS (EXTERNA)<br>
-                LIMPEZA DE VIDROS EXTERNOS<br>
-                LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS
-              </div>
+              <div class="service-desc-list">${htmlExterna}</div>
 
               <div class="service-category-title">INTERNA</div>
-              <div class="service-desc-list">
-                ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>
-                LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>
-                LIMPEZA DOS VIDROS INTERNOS<br>
-                LIMPEZA DOS PLÁSTICOS INTERNOS
-              </div>
+              <div class="service-desc-list">${htmlInterna}</div>
 
               <div class="service-category-title">PROTEÇÃO</div>
-              <div class="service-desc-list">
-                CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>
-                REVITALIZADOR DE PLÁSTICOS INTERNO<br>
-                PRETINHO NOS PNEUS
-              </div>
+              <div class="service-desc-list">${htmlProtecao}</div>
             </div>
 
             <div>
@@ -738,7 +800,10 @@
       const { data: servicos } = await _supabase.from('servicos').select('*');
       let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
 
-      lista = lista.filter(s => s.nome.toUpperCase().includes('LIMPEZA NÍVEL I'));
+      lista = lista.filter(s => 
+        s.nome.toUpperCase().includes('LIMPEZA NÍVEL I') || 
+        s.nome.toUpperCase().includes('LIMPEZA NÍVEL II')
+      );
 
       tabelaPrecos.innerHTML = '';
       lista.forEach(s => {
