@@ -58,7 +58,7 @@
       border-left: 4px solid var(--accent-red); padding-left: 12px;
     }
 
-    /* BOTÕES DE ABAS PARA TROCAR ENTRE LIMPEZA E POLIMENTO */
+    /* BOTÕES DE ABAS */
     .service-tabs-container {
       display: flex;
       gap: 15px;
@@ -102,7 +102,7 @@
       display: block;
     }
 
-    /* CARROSSEL DE SERVIÇOS (ROLAGEM HORIZONTAL) */
+    /* CARROSSEL DE SERVIÇOS */
     .services-scroll-container {
       display: flex;
       gap: 25px;
@@ -346,7 +346,7 @@
 
   <div class="container">
 
-    <!-- BOTÕES PARA TROCAR DE OPÇÃO (ABAS) -->
+    <!-- BOTÕES PARA TROCAR DE OPÇÃO -->
     <div class="service-tabs-container">
       <button class="tab-btn active" onclick="mudarAbaServico('limpeza')">🧼 Limpeza</button>
       <button class="tab-btn" onclick="mudarAbaServico('polimento')">✨ Polimento</button>
@@ -383,7 +383,6 @@
           <select id="selectService" required><option value="">Aguarde, carregando...</option></select>
         </div>
 
-        <!-- SELETOR DE PORTE DO CARRO -->
         <div class="form-group">
           <label for="selectCarSize">Porte do Veículo</label>
           <select id="selectCarSize" required>
@@ -394,7 +393,6 @@
           </select>
         </div>
 
-        <!-- EXIBIÇÃO DO VALOR FINAL DINÂMICO -->
         <div class="price-display-box">
           <div class="price-display-label">Valor Total do Serviço</div>
           <div class="price-display-value" id="displayTotalValue">R$ 0,00</div>
@@ -487,7 +485,7 @@
           </table>
         </div>
 
-        <h3 style="font-family: 'Montserrat', sans-serif; margin-bottom: 15px; color: var(--primary);">Gerenciar Agendamentos (Desagendar)</h3>
+        <h3 style="font-family: 'Montserrat', sans-serif; margin-bottom: 15px; color: var(--primary);">Gerenciar Agendamentos</h3>
         <div class="admin-table-wrapper">
           <table>
             <thead>
@@ -623,11 +621,11 @@
         if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
           htmlExterna = `LAVAGEM EXTERNA DA PINTURA<br>LIMPEZA DAS CANALETAS DE PORTA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS<br>LIMPEZA DA CHURRASQUEIRA<br>LIMPEZA DOS PNEUS<br>LIMPEZA DO ESCAPE`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DO VOLANTE E CHAVE DE SETA<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PEDAIS`;
-          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA 3 MES DE PROTEÇÃO<br>IMPERMEABILIZADOR DO PARABRISA<br>IMPERMEABILIZADOR DOS VIDROS<br>SELANTE NOS PNEUS`;
+          htmlProtecao = `REVITALIZADOR DE PLASTICOS EXTERNOS<br>REVITALIZADOR DE PLASTICOS<br>CERA EM PASTA 3 MES DE PROTEÇÃO<br>IMPERMEABILIZADOR DO PARABRISA<br>IMPERMEABILIZADOR DOS VIDROS<br>SELANTE NOS PNEUS`;
         } else if (nomeUpper.includes('LIMPEZA NÍVEL II')) {
           htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
-          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATE 2 MES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
+          htmlProtecao = `REVITALIZADOR DE PLASTICOS EXTERNOS<br>REVITALIZADOR DE PLASTICOS INTERNOS<br>CERA EM PASTA ATE 2 MES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
         } else if (nomeUpper.includes('LIMPEZA NÍVEL I')) {
           htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLÁSTICOS INTERNOS`;
