@@ -459,7 +459,7 @@
     let cacheServicos = [];
 
     const servicosPadrao = [
-      { id: 1, nome: 'LIMPEZA NÍVEL 1', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
+      { id: 1, nome: 'LIMPEZA NÍVEL 1', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 80.00, tipo: 'limpeza' },
       { id: 2, nome: 'LIMPEZA NÍVEL 2', preco_hatch: 200.00, preco_suv: 230.00, preco_pickup: 280.00, tipo: 'limpeza' },
       { id: 3, nome: 'LIMPEZA NÍVEL 3', preco_hatch: 300.00, preco_suv: 330.00, preco_pickup: 380.00, tipo: 'limpeza' },
       { id: 4, nome: 'POLIMENTO COMERCIAL', preco_hatch: 350.00, preco_suv: 420.00, preco_pickup: 500.00, tipo: 'polimento' },
@@ -528,11 +528,10 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Normaliza os nomes para "LIMPEZA NÍVEL 1", "2" e "3"
       listaServicos = listaServicos.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
         if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL I') || nomeUp.includes('NÍVEL 1') || nomeUp.includes('NIVEL 1')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL 1', ordem: 1 };
+          return { ...s, nome: 'LIMPEZA NÍVEL 1', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 80.00, ordem: 1 };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
           return { ...s, nome: 'LIMPEZA NÍVEL 2', ordem: 2 };
@@ -550,9 +549,9 @@
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
 
       listaServicos.forEach(s => {
-        const pHatch = parseFloat(s.preco_hatch || s.preco || 100.00).toFixed(2).replace('.', ',');
-        const pSuv = parseFloat(s.preco_suv || s.preco || 120.00).toFixed(2).replace('.', ',');
-        const pPickup = parseFloat(s.preco_pickup || s.preco || 180.00).toFixed(2).replace('.', ',');
+        const pHatch = parseFloat(s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 100.00)).toFixed(2).replace('.', ',');
+        const pSuv = parseFloat(s.preco_suv !== undefined ? s.preco_suv : (s.preco || 120.00)).toFixed(2).replace('.', ',');
+        const pPickup = parseFloat(s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 80.00)).toFixed(2).replace('.', ',');
 
         let htmlExterna = '';
         let htmlInterna = '';
@@ -562,9 +561,9 @@
         let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
         if (nomeUpper.includes('NÍVEL 1') || nomeUpper.includes('NIVEL 1') || nomeUpper.includes('NÍVEL I')) {
-          htmlExterna = `DUCHA EXTERNA RÁPIDA DE PINTURA<br>LIMPEZA SIMPLES DAS RODAS<br>SECAGEM COM TOALHA DE MICROFIBRA<br>LIMPEZA DE VIDROS EXTERNOS`;
-          htmlInterna = `ASPIRAÇÃO ESSENCIAL DOS BANCOS E CARPETES<br>REMOÇÃO DE POEIRA DO PAINEL<br>LIMPEZA DOS VIDROS INTERNOS`;
-          htmlProtecao = `PRETINHO BÁSICO NOS PNEUS<br>DESODORIZADOR DE INTERIOR`;
+          htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
+          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLASTICOS INTERNOS`;
+          htmlProtecao = `CERA EM PASTA 1 MES DE PROTEÇÃO<br>REVITALIZADOR DE PLASTICOS INTERNO<br>PRETINHO NOS PNEUS`;
         } else if (nomeUpper.includes('NÍVEL 2') || nomeUpper.includes('NIVEL 2') || nomeUpper.includes('NÍVEL II')) {
           htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
@@ -655,9 +654,9 @@
       const servicoObj = cacheServicos.find(s => s.nome === servicoNome) || servicosPadrao[0];
       let precoFinal = 0;
 
-      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || servicoObj.preco || 100;
-      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || servicoObj.preco || 120;
-      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || servicoObj.preco || 180;
+      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch !== undefined ? servicoObj.preco_hatch : (servicoObj.preco || 100);
+      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv !== undefined ? servicoObj.preco_suv : (servicoObj.preco || 120);
+      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup !== undefined ? servicoObj.preco_pickup : (servicoObj.preco || 80);
 
       display.innerText = `R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')}`;
     }
@@ -696,9 +695,9 @@
 
       const servicoObj = cacheServicos.find(s => s.nome === servicoNome) || servicosPadrao[0];
       let precoFinal = 0;
-      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || servicoObj.preco || 100;
-      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || servicoObj.preco || 120;
-      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || servicoObj.preco || 180;
+      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch !== undefined ? servicoObj.preco_hatch : (servicoObj.preco || 100);
+      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv !== undefined ? servicoObj.preco_suv : (servicoObj.preco || 120);
+      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup !== undefined ? servicoObj.preco_pickup : (servicoObj.preco || 80);
 
       const servicoComPorte = `${servicoNome} (${porteCarro} - R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')})`;
 
@@ -810,7 +809,7 @@
       lista = lista.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
         if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL I') || nomeUp.includes('NÍVEL 1') || nomeUp.includes('NIVEL 1')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL 1' };
+          return { ...s, nome: 'LIMPEZA NÍVEL 1', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 80.00 };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
           return { ...s, nome: 'LIMPEZA NÍVEL 2' };
@@ -825,7 +824,7 @@
       lista.forEach(s => {
         const pHatch = s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 100.00);
         const pSuv = s.preco_suv !== undefined ? s.preco_suv : (s.preco || 120.00);
-        const pPickup = s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 180.00);
+        const pPickup = s.preco_pickup !== undefined ? s.preco_pickup : (s.preco || 80.00);
 
         tabelaPrecos.innerHTML += `
           <tr>
