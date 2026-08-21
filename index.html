@@ -459,9 +459,9 @@
     let cacheServicos = [];
 
     const servicosPadrao = [
-      { id: 1, nome: 'LIMPEZA NÍVEL I', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
-      { id: 2, nome: 'LIMPEZA NÍVEL II', preco_hatch: 200.00, preco_suv: 230.00, preco_pickup: 280.00, tipo: 'limpeza' },
-      { id: 3, nome: 'LIMPEZA NÍVEL III', preco_hatch: 300.00, preco_suv: 330.00, preco_pickup: 380.00, tipo: 'limpeza' },
+      { id: 1, nome: 'LIMPEZA NÍVEL 1', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
+      { id: 2, nome: 'LIMPEZA NÍVEL 2', preco_hatch: 200.00, preco_suv: 230.00, preco_pickup: 280.00, tipo: 'limpeza' },
+      { id: 3, nome: 'LIMPEZA NÍVEL 3', preco_hatch: 300.00, preco_suv: 330.00, preco_pickup: 380.00, tipo: 'limpeza' },
       { id: 4, nome: 'POLIMENTO COMERCIAL', preco_hatch: 350.00, preco_suv: 420.00, preco_pickup: 500.00, tipo: 'polimento' },
       { id: 5, nome: 'POLIMENTO TÉCNICO', preco_hatch: 600.00, preco_suv: 750.00, preco_pickup: 900.00, tipo: 'polimento' }
     ];
@@ -528,17 +528,17 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Padroniza os nomes e garante ordenação correta por Nível
+      // Normaliza os nomes para "LIMPEZA NÍVEL 1", "2" e "3"
       listaServicos = listaServicos.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
         if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL I') || nomeUp.includes('NÍVEL 1') || nomeUp.includes('NIVEL 1')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL I', ordem: 1 };
+          return { ...s, nome: 'LIMPEZA NÍVEL 1', ordem: 1 };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL II', ordem: 2 };
+          return { ...s, nome: 'LIMPEZA NÍVEL 2', ordem: 2 };
         }
         if (nomeUp.includes('NÍVEL III') || nomeUp.includes('NIVEL III') || nomeUp.includes('NÍVEL 3') || nomeUp.includes('NIVEL 3')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL III', ordem: 3 };
+          return { ...s, nome: 'LIMPEZA NÍVEL 3', ordem: 3 };
         }
         return { ...s, ordem: 4 };
       }).sort((a, b) => (a.ordem || 99) - (b.ordem || 99));
@@ -561,16 +561,15 @@
         const nomeUpper = s.nome.toUpperCase();
         let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
-        if (nomeUpper.includes('NÍVEL I') || nomeUpper.includes('NIVEL I')) {
+        if (nomeUpper.includes('NÍVEL 1') || nomeUpper.includes('NIVEL 1') || nomeUpper.includes('NÍVEL I')) {
           htmlExterna = `DUCHA EXTERNA RÁPIDA DE PINTURA<br>LIMPEZA SIMPLES DAS RODAS<br>SECAGEM COM TOALHA DE MICROFIBRA<br>LIMPEZA DE VIDROS EXTERNOS`;
           htmlInterna = `ASPIRAÇÃO ESSENCIAL DOS BANCOS E CARPETES<br>REMOÇÃO DE POEIRA DO PAINEL<br>LIMPEZA DOS VIDROS INTERNOS`;
           htmlProtecao = `PRETINHO BÁSICO NOS PNEUS<br>DESODORIZADOR DE INTERIOR`;
-        } else if (nomeUpper.includes('NÍVEL II') || nomeUpper.includes('NIVEL II')) {
-          // CONTEÚDO SOLICITADO EXATAMENTE PARA O SEGUNDO CARD (NÍVEL II)
+        } else if (nomeUpper.includes('NÍVEL 2') || nomeUpper.includes('NIVEL 2') || nomeUpper.includes('NÍVEL II')) {
           htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
           htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
-        } else if (nomeUpper.includes('NÍVEL III') || nomeUpper.includes('NIVEL III')) {
+        } else if (nomeUpper.includes('NÍVEL 3') || nomeUpper.includes('NIVEL 3') || nomeUpper.includes('NÍVEL III')) {
           htmlExterna = `LAVAGEM TÉCNICA EXTERNA COM DESCONTAMINAÇÃO DA PINTURA<br>LIMPEZA DETALHADA DE MOTOR E CHASSIS<br>LIMPEZA PROFUNDA DE CAIXAS DE RODA E SUSPENSÃO<br>LIMPEZA E POLIMENTO TÉCNICO DE VIDROS`;
           htmlInterna = `HIGIENIZAÇÃO COMPLETA A SECO DOS BANCOS E ESTOFADOS<br>LIMPEZA E TRATAMENTO DE COURO (SE HOUVER)<br>DESINFECÇÃO COM OZÔNIO E AR-CONDICIONADO<br>REMOÇÃO TÉCNICA DE MANCHAS DO TETO E CARPETE`;
           htmlProtecao = `VITRIFICAÇÃO/PROTEÇÃO DE PINTURA ATÉ 6 MESES<br>CONDICIONAMENTO DE PLÁSTICOS E BORRACHAS<br>SELANTE DE ALTA DURABILIDADE NOS PNEUS`;
@@ -811,13 +810,13 @@
       lista = lista.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
         if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL I') || nomeUp.includes('NÍVEL 1') || nomeUp.includes('NIVEL 1')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL I' };
+          return { ...s, nome: 'LIMPEZA NÍVEL 1' };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL II' };
+          return { ...s, nome: 'LIMPEZA NÍVEL 2' };
         }
         if (nomeUp.includes('NÍVEL III') || nomeUp.includes('NIVEL III') || nomeUp.includes('NÍVEL 3') || nomeUp.includes('NIVEL 3')) {
-          return { ...s, nome: 'LIMPEZA NÍVEL III' };
+          return { ...s, nome: 'LIMPEZA NÍVEL 3' };
         }
         return s;
       });
