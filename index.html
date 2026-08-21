@@ -76,15 +76,17 @@
       background-color: var(--bg-card); 
       border: 1px solid var(--border-color); 
       border-radius: var(--radius-md);
-      padding: 30px 20px; 
+      padding: 25px 20px; 
       display: flex; 
       flex-direction: column; 
       justify-content: space-between; 
       transition: all 0.3s ease;
       text-align: center;
       position: relative;
-      min-width: 330px;
-      max-width: 360px;
+      min-width: 320px;
+      max-width: 350px;
+      width: 330px;
+      height: 580px; /* Altura rígida e idêntica para todos */
       flex: 0 0 auto;
       scroll-snap-align: start;
     }
@@ -92,20 +94,38 @@
     
     .service-title-img {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: var(--text-white);
       letter-spacing: 1px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    /* CONTAINER COM ROLAGEM INTERNA PARA AS ITENS DE CADA CARD */
+    .service-content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) transparent;
+      text-align: left;
+    }
+    .service-content-scroll::-webkit-scrollbar { width: 4px; }
+    .service-content-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+    .service-footer-area {
+      flex-shrink: 0;
     }
 
     .service-category-title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: var(--accent-red);
       letter-spacing: 2px;
-      margin: 15px 0 10px 0;
+      margin: 12px 0 8px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -120,8 +140,8 @@
 
     .service-desc-list {
       color: var(--text-muted);
-      font-size: 0.82rem;
-      line-height: 1.5;
+      font-size: 0.78rem;
+      line-height: 1.4;
       margin-bottom: 5px;
       text-transform: uppercase;
     }
@@ -130,7 +150,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin: 25px 0 20px 0;
+      margin: 15px 0 15px 0;
     }
 
     .price-box-item {
@@ -192,7 +212,6 @@
     }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
 
-    /* ESTILO PARA O DISPLAY DE VALOR FINAL */
     .price-display-box {
       background-color: var(--bg-dark);
       border: 2px dashed var(--primary);
@@ -525,7 +544,6 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Filtrar apenas Nível I, II e III
       listaServicos = listaServicos.filter(s => 
         s.nome.toUpperCase().includes('LIMPEZA NÍVEL I') || 
         s.nome.toUpperCase().includes('LIMPEZA NÍVEL II') ||
@@ -627,9 +645,9 @@
 
         grid.innerHTML += `
           <div class="service-card">
-            <div>
-              <div class="service-title-img">${s.nome}</div>
+            <div class="service-title-img">${s.nome}</div>
 
+            <div class="service-content-scroll">
               <div class="service-category-title">EXTERNA</div>
               <div class="service-desc-list">${htmlExterna}</div>
 
@@ -640,10 +658,10 @@
               <div class="service-desc-list">${htmlProtecao}</div>
             </div>
 
-            <div>
+            <div class="service-footer-area">
               <div class="service-prices-container">
                 <div class="price-box-item">
-                  <span class="price-box-label">Hatch e sedan</span>
+                  <span class="price-box-label">Hatch / Sedan</span>
                   <div class="price-box-value">${pHatch}</div>
                 </div>
                 <div class="price-box-item">
