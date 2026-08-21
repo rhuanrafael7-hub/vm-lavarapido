@@ -86,7 +86,7 @@
       min-width: 320px;
       max-width: 350px;
       width: 330px;
-      height: 580px; /* Altura rígida e idêntica para todos */
+      height: 580px;
       flex: 0 0 auto;
       scroll-snap-align: start;
     }
@@ -102,7 +102,6 @@
       flex-shrink: 0;
     }
 
-    /* CONTAINER COM ROLAGEM INTERNA PARA AS ITENS DE CADA CARD */
     .service-content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -330,7 +329,6 @@
           <select id="selectService" required><option value="">Aguarde, carregando...</option></select>
         </div>
 
-        <!-- SELETOR DE PORTE DO CARRO -->
         <div class="form-group">
           <label for="selectCarSize">Porte do Veículo</label>
           <select id="selectCarSize" required>
@@ -341,7 +339,6 @@
           </select>
         </div>
 
-        <!-- EXIBIÇÃO DO VALOR FINAL DINÂMICO -->
         <div class="price-display-box">
           <div class="price-display-label">Valor Total do Serviço</div>
           <div class="price-display-value" id="displayTotalValue">R$ 0,00</div>
@@ -465,7 +462,7 @@
 
     const servicosPadrao = [
       { id: 1, nome: 'LIMPEZA NÍVEL I', preco_hatch: 100.00, preco_suv: 120.00, preco_pickup: 180.00, tipo: 'limpeza' },
-      { id: 2, nome: 'LIMPEZA NÍVEL II', preco_hatch: 200.00, preco_suv: 250.00, preco_pickup: 300.00, tipo: 'limpeza' },
+      { id: 2, nome: 'LIMPEZA NÍVEL II', preco_hatch: 200.00, preco_suv: 230.00, preco_pickup: 280.00, tipo: 'limpeza' },
       { id: 3, nome: 'LIMPEZA NÍVEL III', preco_hatch: 300.00, preco_suv: 330.00, preco_pickup: 380.00, tipo: 'limpeza' },
       { id: 4, nome: 'POLIMENTO COMERCIAL', preco_hatch: 350.00, preco_suv: 420.00, preco_pickup: 500.00, tipo: 'polimento' },
       { id: 5, nome: 'POLIMENTO TÉCNICO', preco_hatch: 600.00, preco_suv: 750.00, preco_pickup: 900.00, tipo: 'polimento' }
@@ -533,10 +530,14 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Se o banco trouxer "Ducha Express", forçamos a renomeação para "LIMPEZA NÍVEL I"
+      // Renomeia Ducha Express -> LIMPEZA NÍVEL I e Lavagem Completa -> LIMPEZA NÍVEL II
       listaServicos = listaServicos.map(s => {
-        if (s.nome && (s.nome.toUpperCase().includes('DUCHA') || s.nome.toUpperCase().includes('EXPRESS'))) {
+        const nomeUp = (s.nome || '').toUpperCase();
+        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS')) {
           return { ...s, nome: 'LIMPEZA NÍVEL I' };
+        }
+        if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
+          return { ...s, nome: 'LIMPEZA NÍVEL II' };
         }
         return s;
       });
@@ -563,14 +564,14 @@
           htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLÁSTICOS INTERNOS`;
           htmlProtecao = `CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>REVITALIZADOR DE PLÁSTICOS INTERNO<br>PRETINHO NOS PNEUS`;
+        } else if (nomeUpper.includes('LIMPEZA NÍVEL II') || nomeUpper.includes('LIMPEZA NIVEL II') || nomeUpper.includes('COMPLETA')) {
+          htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
+          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
+          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
         } else if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
           htmlExterna = `LAVAGEM EXTERNA<br>CANALETAS DE PORTA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS E GRADES<br>RODAS (EXT/INT)<br>VIDROS E CAIXAS DE RODA`;
           htmlInterna = `ASPIRAÇÃO COMPLETA<br>PAINEL, PORTAS E CONSOLE<br>VOLANTE E PEDAIS`;
           htmlProtecao = `REVITALIZADOR DE PLÁSTICOS<br>CERA 3 MESES<br>SELANTE NOS PNEUS`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL II')) {
-          htmlExterna = `LAVAGEM EXTERNA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS<br>RODAS E CAIXA DE RODAS`;
-          htmlInterna = `ASPIRAÇÃO E TAPETES<br>PAINEL E CONSOLE<br>VIDROS INTERNOS`;
-          htmlProtecao = `REVITALIZADOR<br>CERA 2 MESES<br>PRETINHO NOS PNEUS`;
         } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
           htmlExterna = `DESCONTAMINAÇÃO DE PINTURA<br>CORREÇÃO DE RISCOS PROFUNDOS<br>CORTE, REFORÇO E LUSTRO<br>PROTEÇÃO DE PLÁSTICOS`;
           htmlInterna = `NÃO INCLUI PARTE INTERNA`;
@@ -806,8 +807,12 @@
       let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
 
       lista = lista.map(s => {
-        if (s.nome && (s.nome.toUpperCase().includes('DUCHA') || s.nome.toUpperCase().includes('EXPRESS'))) {
+        const nomeUp = (s.nome || '').toUpperCase();
+        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS')) {
           return { ...s, nome: 'LIMPEZA NÍVEL I' };
+        }
+        if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
+          return { ...s, nome: 'LIMPEZA NÍVEL II' };
         }
         return s;
       });
@@ -865,13 +870,13 @@
 
       let { error } = await _supabase
         .from('servicos')
-        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: 'LIMPEZA NÍVEL I' })
+        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: nomeServico })
         .eq('id', idNumerico);
 
       if (error) {
         let { error: errorNome } = await _supabase
           .from('servicos')
-          .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: 'LIMPEZA NÍVEL I' })
+          .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: nomeServico })
           .eq('nome', nomeServico);
           
         if (errorNome) {
