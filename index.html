@@ -266,6 +266,17 @@
           <select id="selectService" required><option value="">Aguarde, carregando...</option></select>
         </div>
 
+        <!-- NOVO: SELETOR DE PORTE DO CARRO LOGO ABAIXO DO SERVIÇO -->
+        <div class="form-group" id="groupCarSize">
+          <label for="selectCarSize">Porte do Veículo</label>
+          <select id="selectCarSize" required>
+            <option value="">▼ SELECIONE O PORTE DO CARRO</option>
+            <option value="Hatch e Sedan">Hatch e Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Pick-up">Pick-up</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label>Data da Lavagem</label>
           <div class="date-scroll-container" id="dateScrollContainer"></div>
@@ -380,6 +391,7 @@
 
     let selectedTime = '';
     let selectedRating = 5;
+    let cacheServicos = [];
 
     const servicosPadrao = [
       { 
@@ -449,11 +461,12 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
-      // Filtra estritamente para manter apenas a Limpeza Nível I conforme solicitado
       listaServicos = listaServicos.filter(s => s.nome.toUpperCase().includes('LIMPEZA NÍVEL I'));
       if (listaServicos.length === 0) {
         listaServicos = servicosPadrao;
       }
+
+      cacheServicos = listaServicos;
 
       grid.innerHTML = '';
       select.innerHTML = '<option value="">▼ ESCOLHA O SERVIÇO DESEJADO</option>';
@@ -512,7 +525,7 @@
             </div>
           </div>
         `;
-        select.innerHTML += `<option value="${s.nome}">${s.nome} (Hatch: R$ ${pHatch} | SUV: R$ ${pSuv} | Pick-up: R$ ${pPickup})</option>`;
+        select.innerHTML += `<option value="${s.nome}">${s.nome}</option>`;
       });
     }
 
@@ -537,11 +550,16 @@
       const alertBox = document.getElementById('bookingAlert');
       const nome = document.getElementById('clientName').value;
       const telefone = document.getElementById('clientPhone').value;
-      const servico = document.getElementById('selectService').value;
+      const servicoNome = document.getElementById('selectService').value;
+      const porteCarro = document.getElementById('selectCarSize').value;
       const data = document.getElementById('bookingDate').value;
 
       if (!selectedTime) {
         exibirAlerta(alertBox, 'Selecione um horário!', 'error');
+        return;
+      }
+      if (!porteCarro) {
+        exibirAlerta(alertBox, 'Selecione o porte do veículo!', 'error');
         return;
       }
       if (!data) {
@@ -549,7 +567,23 @@
         return;
       }
 
-      const { error } = await _supabase.from('agendamentos').insert([{ nome, telefone, servico, data, horario: selectedTime }]);
+      // Identificar o preço com base no porte escolhido
+      const servicoObj = cacheServicos.find(s => s.nome === servicoNome) || servicosPadrao[0];
+      let precoFinal = 0;
+      if (porteCarro === 'Hatch e Sedan') precoFinal = servicoObj.preco_hatch || servicoObj.preco || 100;
+      else if (porteCarro === 'SUV') precoFinal = servicoObj.preco_suv || servicoObj.preco || 120;
+      else if (porteCarro === 'Pick-up') precoFinal = servicoObj.preco_pickup || servicoObj.preco || 180;
+
+      const servicoComPorte = `${servicoNome} (${porteCarro} - R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')})`;
+
+      const { error } = await _supabase.from('agendamentos').insert([{ 
+        nome, 
+        telefone, 
+        servico: servicoComPorte, 
+        data, 
+        horario: selectedTime 
+      }]);
+
       if (error) {
         exibirAlerta(alertBox, 'Erro ao agendar: ' + error.message, 'error');
       } else {
@@ -559,7 +593,7 @@
         const dataFormatadaBr = `${dia}/${mes}/${ano}`;
         const whatsappDestino = '5516999999999';
 
-        const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servico}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
+        const mensagem = `Olá! Gostaria de confirmar meu agendamento no Lava Rápido:\n\n👤 *Nome:* ${nome}\n📱 *Telefone:* ${telefone}\n🧼 *Serviço:* ${servicoNome}\n🚗 *Porte do Carro:* ${porteCarro}\n💰 *Valor:* R$ ${parseFloat(precoFinal).toFixed(2).replace('.', ',')}\n📅 *Data:* ${dataFormatadaBr}\n⏰ *Horário:* ${selectedTime}`;
         const urlWhatsApp = `https://wa.me/${whatsappDestino}?text=${encodeURIComponent(mensagem)}`;
 
         document.getElementById('bookingForm').reset();
