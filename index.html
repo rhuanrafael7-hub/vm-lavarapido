@@ -299,8 +299,8 @@
       background: var(--card-bg);
       padding: 25px;
       border-radius: 14px;
-      max-width: 600px;
-      width: 92%;
+      max-width: 650px;
+      width: 94%;
       max-height: 90vh;
       overflow-y: auto;
       border: 1px solid var(--accent-blue);
@@ -316,23 +316,27 @@
     
     .admin-tab-btns {
       display: flex;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 20px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
       padding-bottom: 10px;
     }
     .admin-tab-btn {
       background: transparent;
-      border: none;
+      border: 1px solid rgba(255,255,255,0.1);
       color: var(--text-sub);
-      padding: 8px 12px;
+      padding: 7px 10px;
       cursor: pointer;
       font-weight: bold;
       border-radius: 6px;
+      font-size: 0.78rem;
+      transition: 0.2s;
     }
     .admin-tab-btn.active {
       background: var(--accent-blue);
       color: #000;
+      border-color: var(--accent-blue);
     }
 
     .booking-admin-item {
@@ -503,18 +507,27 @@
 
     <div id="adminPanel" style="display: none;">
       <div class="admin-tab-btns">
-        <button class="admin-tab-btn active" onclick="trocarAbaAdmin('agendamentos')">📅 AGENDAMENTOS DO DIA</button>
+        <button class="admin-tab-btn active" onclick="trocarAbaAdmin('todos')">📋 TODOS OS AGENDAMENTOS</button>
+        <button class="admin-tab-btn" onclick="trocarAbaAdmin('agendamentos')">📅 FILTRAR POR DATA</button>
         <button class="admin-tab-btn" onclick="trocarAbaAdmin('precos')">💰 ALTERAR PREÇOS</button>
       </div>
 
-      <div id="tabAgendamentos">
+      <!-- ABA 1: TODOS OS AGENDAMENTOS (SEM FILTRO) -->
+      <div id="tabTodos">
+        <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 10px;">Exibindo todos os agendamentos registrados no sistema em ordem de data:</p>
+        <div id="adminAllBookingList">Carregando todos os agendamentos...</div>
+      </div>
+
+      <!-- ABA 2: FILTRAR POR DATA -->
+      <div id="tabAgendamentos" style="display: none;">
         <div class="form-group">
-          <label>FILTRAR AGENDAMENTOS POR DATA:</label>
+          <label>ESCOLHA UMA DATA ESPECÍFICA:</label>
           <input type="date" id="adminFilterDate" onchange="carregarAgendamentosAdmin()">
         </div>
         <div id="adminBookingList">Carregando agendamentos...</div>
       </div>
 
+      <!-- ABA 3: PREÇOS -->
       <div id="tabPrecos" style="display: none;">
         <p style="margin-bottom: 15px; color: var(--accent-blue); font-weight: bold;">Atualize os preços padrão:</p>
         <div class="form-group">
@@ -857,6 +870,10 @@
       document.getElementById('adminAuth').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       
+      // Carregar Aba de Todos
+      carregarTodosAgendamentosAdmin();
+
+      // Configurar data de hoje na aba de filtro
       const hoje = new Date().toISOString().split('T')[0];
       document.getElementById('adminFilterDate').value = hoje;
       carregarAgendamentosAdmin();
@@ -872,15 +889,60 @@
 
   function trocarAbaAdmin(aba) {
     document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
-    if (aba === 'agendamentos') {
+    
+    document.getElementById('tabTodos').style.display = 'none';
+    document.getElementById('tabAgendamentos').style.display = 'none';
+    document.getElementById('tabPrecos').style.display = 'none';
+
+    if (aba === 'todos') {
       document.querySelectorAll('.admin-tab-btn')[0].classList.add('active');
-      document.getElementById('tabAgendamentos').style.display = 'block';
-      document.getElementById('tabPrecos').style.display = 'none';
-    } else {
+      document.getElementById('tabTodos').style.display = 'block';
+      carregarTodosAgendamentosAdmin();
+    } else if (aba === 'agendamentos') {
       document.querySelectorAll('.admin-tab-btn')[1].classList.add('active');
-      document.getElementById('tabAgendamentos').style.display = 'none';
+      document.getElementById('tabAgendamentos').style.display = 'block';
+      carregarAgendamentosAdmin();
+    } else if (aba === 'precos') {
+      document.querySelectorAll('.admin-tab-btn')[2].classList.add('active');
       document.getElementById('tabPrecos').style.display = 'block';
     }
+  }
+
+  async function carregarTodosAgendamentosAdmin() {
+    const container = document.getElementById('adminAllBookingList');
+    container.innerHTML = '<p style="color: var(--text-sub);">Buscando todos os agendamentos...</p>';
+
+    const { data, error } = await db
+      .from('agendamentos')
+      .select('*')
+      .order('data', { ascending: true })
+      .order('horario', { ascending: true });
+
+    if (error) {
+      console.error('Erro ao buscar todos:', error);
+      container.innerHTML = '<p style="color: var(--danger-color);">Erro ao carregar agendamentos.</p>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-sub);">Nenhum agendamento cadastrado no sistema.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    data.forEach(a => {
+      const [ano, mes, dia] = a.data.split('-');
+      container.innerHTML += `
+        <div class="booking-admin-item">
+          <div>
+            <strong style="color: var(--accent-blue);">📅 ${dia}/${mes}/${ano} às ${a.horario}</strong><br>
+            <span style="color: #fff; font-weight: 600;">${a.nome}</span> (${a.telefone})<br>
+            <small style="color: var(--text-sub);">${a.servico}</small>
+          </div>
+          <button class="btn-delete" onclick="cancelarAgendamento(${a.id}, 'todos')">Desmarcar</button>
+        </div>
+      `;
+    });
   }
 
   async function carregarAgendamentosAdmin() {
@@ -900,16 +962,16 @@
       container.innerHTML += `
         <div class="booking-admin-item">
           <div>
-            <strong style="color: var(--accent-blue);">${a.horario}</strong> - ${a.nome}<br>
+            <strong style="color: var(--accent-blue);">⏰ ${a.horario}</strong> - ${a.nome}<br>
             <small style="color: var(--text-sub);">${a.servico} | Tel: ${a.telefone}</small>
           </div>
-          <button class="btn-delete" onclick="cancelarAgendamento(${a.id})">Desmarcar</button>
+          <button class="btn-delete" onclick="cancelarAgendamento(${a.id}, 'filtro')">Desmarcar</button>
         </div>
       `;
     });
   }
 
-  async function cancelarAgendamento(id) {
+  async function cancelarAgendamento(id, origem) {
     const res = await Swal.fire({
       title: 'Cancelar Agendamento?',
       text: "Isso liberará o horário novamente no site.",
@@ -924,7 +986,11 @@
       const { error } = await db.from('agendamentos').delete().eq('id', id);
       if (!error) {
         Swal.fire('Cancelado!', 'O agendamento foi desmarcado.', 'success');
-        carregarAgendamentosAdmin();
+        if (origem === 'todos') {
+          carregarTodosAgendamentosAdmin();
+        } else {
+          carregarAgendamentosAdmin();
+        }
         atualizarHorariosDisponiveis();
       } else {
         Swal.fire('Erro', 'Não foi possível cancelar o agendamento.', 'error');
