@@ -58,6 +58,50 @@
       border-left: 4px solid var(--accent-red); padding-left: 12px;
     }
 
+    /* BOTÕES DE ABAS PARA TROCAR ENTRE LIMPEZA E POLIMENTO */
+    .service-tabs-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--accent-red);
+      color: var(--text-white);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent-red);
+      border-color: var(--accent-red);
+      color: var(--text-white);
+      box-shadow: var(--shadow-red);
+    }
+
+    .service-pane {
+      display: none;
+    }
+
+    .service-pane.active {
+      display: block;
+    }
+
     /* CARROSSEL DE SERVIÇOS (ROLAGEM HORIZONTAL) */
     .services-scroll-container {
       display: flex;
@@ -86,7 +130,7 @@
       min-width: 320px;
       max-width: 350px;
       width: 330px;
-      height: 580px; /* Altura rígida e idêntica para todos */
+      height: 580px;
       flex: 0 0 auto;
       scroll-snap-align: start;
     }
@@ -102,7 +146,6 @@
       flex-shrink: 0;
     }
 
-    /* CONTAINER COM ROLAGEM INTERNA PARA AS ITENS DE CADA CARD */
     .service-content-scroll {
       flex: 1;
       overflow-y: auto;
@@ -303,13 +346,23 @@
 
   <div class="container">
 
-    <!-- SEÇÃO DE LIMPEZA -->
-    <h2 class="section-title">Limpeza (Arraste para o lado 👉)</h2>
-    <div class="services-scroll-container" id="limpezaGrid"></div>
+    <!-- BOTÕES PARA TROCAR DE OPÇÃO (ABAS) -->
+    <div class="service-tabs-container">
+      <button class="tab-btn active" onclick="mudarAbaServico('limpeza')">🧼 Limpeza</button>
+      <button class="tab-btn" onclick="mudarAbaServico('polimento')">✨ Polimento</button>
+    </div>
 
-    <!-- SEÇÃO DE POLIMENTO -->
-    <h2 class="section-title" style="border-left-color: var(--primary);">Polimento (Arraste para o lado 👉)</h2>
-    <div class="services-scroll-container" id="polimentoGrid"></div>
+    <!-- ÁREA DE LIMPEZA -->
+    <div class="service-pane active" id="paneLimpeza">
+      <h2 class="section-title">Opções de Limpeza (Arraste para o lado 👉)</h2>
+      <div class="services-scroll-container" id="limpezaGrid"></div>
+    </div>
+
+    <!-- ÁREA DE POLIMENTO -->
+    <div class="service-pane" id="panePolimento">
+      <h2 class="section-title" style="border-left-color: var(--primary);">Opções de Polimento (Arraste para o lado 👉)</h2>
+      <div class="services-scroll-container" id="polimentoGrid"></div>
+    </div>
 
     <!-- AGENDAMENTO -->
     <div class="booking-card">
@@ -482,6 +535,23 @@
       document.getElementById('selectCarSize').addEventListener('change', calcularPrecoFinalDinamico);
     });
 
+    // Função para alternar entre as abas Limpeza e Polimento
+    function mudarAbaServico(tipo) {
+      const botoes = document.querySelectorAll('.tab-btn');
+      botoes.forEach(btn => btn.classList.remove('active'));
+
+      const panes = document.querySelectorAll('.service-pane');
+      panes.forEach(pane => pane.classList.remove('active'));
+
+      if (tipo === 'limpeza') {
+        botoes[0].classList.add('active');
+        document.getElementById('paneLimpeza').classList.add('active');
+      } else {
+        botoes[1].classList.add('active');
+        document.getElementById('panePolimento').classList.add('active');
+      }
+    }
+
     function gerarSeletorDeDias() {
       const container = document.getElementById('dateScrollContainer');
       container.innerHTML = '';
@@ -560,7 +630,7 @@
           htmlInterna = `ASPIRAÇÃO E TAPETES<br>PAINEL E CONSOLE<br>VIDROS INTERNOS`;
           htmlProtecao = `REVITALIZADOR<br>CERA 2 MESES<br>PRETINHO NOS PNEUS`;
         } else if (nomeUpper.includes('LIMPEZA NÍVEL I')) {
-          htmlExterna = `LAVAGEM EXTERNA<br>RODAS E VIDROS EXTERNOSS`;
+          htmlExterna = `LAVAGEM EXTERNA<br>RODAS E VIDROS EXTERNOS`;
           htmlInterna = `ASPIRAÇÃO BÁSICA<br>PAINEL E VIDROS`;
           htmlProtecao = `CERA 1 MÊS<br>PRETINHO NOS PNEUS`;
         } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
