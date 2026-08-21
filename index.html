@@ -140,7 +140,7 @@
     .service-desc-list {
       color: var(--text-muted);
       font-size: 0.78rem;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-bottom: 5px;
       text-transform: uppercase;
     }
@@ -528,13 +528,17 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
+      // Normaliza nomes vindos do banco
       listaServicos = listaServicos.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
-        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS')) {
+        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL 1') || nomeUp.includes('NIVEL I')) {
           return { ...s, nome: 'LIMPEZA NÍVEL I' };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
           return { ...s, nome: 'LIMPEZA NÍVEL II' };
+        }
+        if (nomeUp.includes('NÍVEL III') || nomeUp.includes('NIVEL III') || nomeUp.includes('NÍVEL 3') || nomeUp.includes('NIVEL 3')) {
+          return { ...s, nome: 'LIMPEZA NÍVEL III' };
         }
         return s;
       });
@@ -557,20 +561,20 @@
         const nomeUpper = s.nome.toUpperCase();
         let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
-        if (nomeUpper.includes('LIMPEZA NÍVEL I') || nomeUpper.includes('LIMPEZA NIVEL I')) {
+        if (nomeUpper.includes('NÍVEL I') || nomeUpper.includes('NIVEL I')) {
           htmlExterna = `DUCHA EXTERNA RÁPIDA DE PINTURA<br>LIMPEZA SIMPLES DAS RODAS<br>SECAGEM COM TOALHA DE MICROFIBRA<br>LIMPEZA DE VIDROS EXTERNOS`;
           htmlInterna = `ASPIRAÇÃO ESSENCIAL DOS BANCOS E CARPETES<br>REMOÇÃO DE POEIRA DO PAINEL<br>LIMPEZA DOS VIDROS INTERNOS`;
           htmlProtecao = `PRETINHO BÁSICO NOS PNEUS<br>DESODORIZADOR DE INTERIOR`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL II') || nomeUpper.includes('LIMPEZA NIVEL II')) {
+        } else if (nomeUpper.includes('NÍVEL II') || nomeUpper.includes('NIVEL II')) {
           htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
           htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL III') || nomeUpper.includes('LIMPEZA NIVEL III')) {
+        } else if (nomeUpper.includes('NÍVEL III') || nomeUpper.includes('NIVEL III')) {
           htmlExterna = `LAVAGEM TÉCNICA EXTERNA COM DESCONTAMINAÇÃO DA PINTURA<br>LIMPEZA DETALHADA DE MOTOR E CHASSIS<br>LIMPEZA PROFUNDA DE CAIXAS DE RODA E SUSPENSÃO<br>LIMPEZA E POLIMENTO TÉCNICO DE VIDROS`;
           htmlInterna = `HIGIENIZAÇÃO COMPLETA A SECO DOS BANCOS E ESTOFADOS<br>LIMPEZA E TRATAMENTO DE COURO (SE HOUVER)<br>DESINFECÇÃO COM OZÔNIO E AR-CONDICIONADO<br>REMOÇÃO TÉCNICA DE MANCHAS DO TETO E CARPETE`;
           htmlProtecao = `VITRIFICAÇÃO/PROTEÇÃO DE PINTURA ATÉ 6 MESES<br>CONDICIONAMENTO DE PLÁSTICOS E BORRACHAS<br>SELANTE DE ALTA DURABILIDADE NOS PNEUS`;
         } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
-          htmlExterna = `DESCONTAMINAÇÃO COMPLETA DE PINTURA (CLAY BAR)<br>CORREÇÃO DE RISCOS FUNDOS EMARCAS DE CHUVA ÁCIDA<br>ETAPAS DE CORTE, REFINO E LUSTRO TÉCNICO<br>LIMPEZA DE RESÍDUOS DE COMPOSTOS POLIDORES`;
+          htmlExterna = `DESCONTAMINAÇÃO COMPLETA DE PINTURA (CLAY BAR)<br>CORREÇÃO DE RISCOS FUNDOS E MARCAS DE CHUVA ÁCIDA<br>ETAPAS DE CORTE, REFINO E LUSTRO TÉCNICO<br>LIMPEZA DE RESÍDUOS DE COMPOSTOS POLIDORES`;
           htmlInterna = `ASPIRAÇÃO INTERNA CORTESIA`;
           htmlProtecao = `VITRIFICAÇÃO DE PINTURA DE ALTA DURABILIDADE<br>PROTEÇÃO DE PLÁSTICOS E FARÓIS`;
         } else if (nomeUpper.includes('POLIMENTO COMERCIAL')) {
@@ -578,9 +582,9 @@
           htmlInterna = `ASPIRAÇÃO INTERNA CORTESIA`;
           htmlProtecao = `APLICAÇÃO DE CERA PROTETORA PREMIUM (ATÉ 3 MESES DE BRILHO E HIDROFOBIA)`;
         } else {
-          htmlExterna = `SERVIÇO ESPECIALIZADO`;
-          htmlInterna = `VERIFICAR DETALHES`;
-          htmlProtecao = `INCLUSO`;
+          htmlExterna = `REVITALIZAÇÃO DOS PLÁSTICOS EXTERNOS<br>LAVAGEM EXTERNA DE PINTURA<br>LIMPEZA DOS PLÁSTICOS EXTERNOS<br>LIMPEZA DOS EMBLEMAS E GRADES<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DAS RODAS (INTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS`;
+          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS PLÁSTICOS INTERNOS<br>LIMPEZA DOS VIDROS INTERNOS`;
+          htmlProtecao = `REVITALIZADOR DE PLÁSTICOS EXTERNOS<br>REVITALIZADOR DE PLÁSTICOS INTERNOS<br>CERA EM PASTA ATÉ 2 MESES DE PROTEÇÃO<br>SELANTE NOS PNEUS`;
         }
 
         const cardHtml = `
@@ -805,11 +809,14 @@
 
       lista = lista.map(s => {
         const nomeUp = (s.nome || '').toUpperCase();
-        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS')) {
+        if (nomeUp.includes('DUCHA') || nomeUp.includes('EXPRESS') || nomeUp.includes('NÍVEL I') || nomeUp.includes('NIVEL 1') || nomeUp.includes('NIVEL I')) {
           return { ...s, nome: 'LIMPEZA NÍVEL I' };
         }
         if (nomeUp.includes('COMPLETA') || nomeUp.includes('NÍVEL II') || nomeUp.includes('NIVEL II') || nomeUp.includes('NÍVEL 2') || nomeUp.includes('NIVEL 2')) {
           return { ...s, nome: 'LIMPEZA NÍVEL II' };
+        }
+        if (nomeUp.includes('NÍVEL III') || nomeUp.includes('NIVEL III') || nomeUp.includes('NÍVEL 3') || nomeUp.includes('NIVEL 3')) {
+          return { ...s, nome: 'LIMPEZA NÍVEL III' };
         }
         return s;
       });
