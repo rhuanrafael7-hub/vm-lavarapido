@@ -533,6 +533,14 @@
       const { data: servicos, error } = await _supabase.from('servicos').select('*');
       let listaServicos = (error || !servicos || servicos.length === 0) ? servicosPadrao : servicos;
 
+      // Se o banco trouxer "Ducha Express", forçamos a renomeação para "LIMPEZA NÍVEL I"
+      listaServicos = listaServicos.map(s => {
+        if (s.nome && (s.nome.toUpperCase().includes('DUCHA') || s.nome.toUpperCase().includes('EXPRESS'))) {
+          return { ...s, nome: 'LIMPEZA NÍVEL I' };
+        }
+        return s;
+      });
+
       cacheServicos = listaServicos;
 
       limpezaGrid.innerHTML = '';
@@ -551,7 +559,11 @@
         const nomeUpper = s.nome.toUpperCase();
         let tipoServico = s.tipo || (nomeUpper.includes('POLIMENTO') ? 'polimento' : 'limpeza');
 
-        if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
+        if (nomeUpper.includes('LIMPEZA NÍVEL I') || nomeUpper.includes('LIMPEZA NIVEL I') || nomeUpper.includes('DUCHA')) {
+          htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
+          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLÁSTICOS INTERNOS`;
+          htmlProtecao = `CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>REVITALIZADOR DE PLÁSTICOS INTERNO<br>PRETINHO NOS PNEUS`;
+        } else if (nomeUpper.includes('LIMPEZA NÍVEL III')) {
           htmlExterna = `LAVAGEM EXTERNA<br>CANALETAS DE PORTA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS E GRADES<br>RODAS (EXT/INT)<br>VIDROS E CAIXAS DE RODA`;
           htmlInterna = `ASPIRAÇÃO COMPLETA<br>PAINEL, PORTAS E CONSOLE<br>VOLANTE E PEDAIS`;
           htmlProtecao = `REVITALIZADOR DE PLÁSTICOS<br>CERA 3 MESES<br>SELANTE NOS PNEUS`;
@@ -559,10 +571,6 @@
           htmlExterna = `LAVAGEM EXTERNA<br>PLÁSTICOS EXTERNOS<br>EMBLEMAS<br>RODAS E CAIXA DE RODAS`;
           htmlInterna = `ASPIRAÇÃO E TAPETES<br>PAINEL E CONSOLE<br>VIDROS INTERNOS`;
           htmlProtecao = `REVITALIZADOR<br>CERA 2 MESES<br>PRETINHO NOS PNEUS`;
-        } else if (nomeUpper.includes('LIMPEZA NÍVEL I')) {
-          htmlExterna = `LAVAGEM EXTERNA DO CARRO<br>LIMPEZA DAS RODAS (EXTERNA)<br>LIMPEZA DE VIDROS EXTERNOS<br>LIMPEZA DA CAIXA DE RODAS E CAIXA DE PORTAS`;
-          htmlInterna = `ASPIRAÇÃO E LIMPEZA DOS TAPETES, CARPETES E BANCOS<br>LIMPEZA DO PAINEL, FORROS DE PORTAS E CONSOLE<br>LIMPEZA DOS VIDROS INTERNOS<br>LIMPEZA DOS PLÁSTICOS INTERNOS`;
-          htmlProtecao = `CERA EM PASTA 1 MÊS DE PROTEÇÃO<br>REVITALIZADOR DE PLÁSTICOS INTERNO<br>PRETINHO NOS PNEUS`;
         } else if (nomeUpper.includes('POLIMENTO TÉCNICO')) {
           htmlExterna = `DESCONTAMINAÇÃO DE PINTURA<br>CORREÇÃO DE RISCOS PROFUNDOS<br>CORTE, REFORÇO E LUSTRO<br>PROTEÇÃO DE PLÁSTICOS`;
           htmlInterna = `NÃO INCLUI PARTE INTERNA`;
@@ -797,6 +805,13 @@
       const { data: servicos } = await _supabase.from('servicos').select('*');
       let lista = (servicos && servicos.length > 0) ? servicos : servicosPadrao;
 
+      lista = lista.map(s => {
+        if (s.nome && (s.nome.toUpperCase().includes('DUCHA') || s.nome.toUpperCase().includes('EXPRESS'))) {
+          return { ...s, nome: 'LIMPEZA NÍVEL I' };
+        }
+        return s;
+      });
+
       tabelaPrecos.innerHTML = '';
       lista.forEach(s => {
         const pHatch = s.preco_hatch !== undefined ? s.preco_hatch : (s.preco || 100.00);
@@ -850,13 +865,13 @@
 
       let { error } = await _supabase
         .from('servicos')
-        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup })
+        .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: 'LIMPEZA NÍVEL I' })
         .eq('id', idNumerico);
 
       if (error) {
         let { error: errorNome } = await _supabase
           .from('servicos')
-          .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup })
+          .update({ preco_hatch: precoHatch, preco_suv: precoSuv, preco_pickup: precoPickup, nome: 'LIMPEZA NÍVEL I' })
           .eq('nome', nomeServico);
           
         if (errorNome) {
